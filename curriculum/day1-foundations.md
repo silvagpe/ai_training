@@ -908,7 +908,7 @@ runComparison();
 ## Model Comparison Report
 
 ### Code Generation
-| Criteria | OpenAI | Anthropic | Gemini | Notes |
+| Criteria | Gemini | Groq | Ollama | Notes |
 |----------|--------|-----------|--------|-------|
 | Correctness | | | | |
 | Code Quality | | | | |
