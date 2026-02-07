@@ -23,5 +23,8 @@ app.include_router(shortener_router)
 
 @app.on_event("startup")
 async def on_startup() -> None:
+	print("[startup] BASE_URL=",settings.base_url)
+	print("[startup] DATABASE_URL=", settings.db_path or "<default>")
+	print("[startup] ALLOW_ORIGINS=", settings.allow_origins)
 	await init_db()
 
