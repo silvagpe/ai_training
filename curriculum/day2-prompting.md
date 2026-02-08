@@ -758,8 +758,14 @@ Write a cache function.
 ```
 
 **Your Improved Version:**
-```
-[Write your improved prompt here]
+```markdown
+I need you developt a robout cache function in python. Please follow a *Chain-of-Tought* process to ensure high-quality output. Before writing the final code, reason through theses steps:
+    1. *Analyze the requirements:* Define the primrary goal of this cache funcion and how it should wrapt existing functions.
+    2. *Determine Data Structure*: Evaluete whether to use a plain `Object`, a `Map`, or a `WeakMap`. Justify yout choice on performance and garbge collection.
+    3. *Implementation of TTL (Time-to-live):* Plan mechanism to invalidate entries after certain duration to prevent stale data. 
+    4. *Memory Management:* Consider a strategy for cache eviction (like LRU - Least Recently Used) to prevent memory leaks if the cache grows too large.
+    5. *Final implementation:* Based on the reasoning above, provide the production-ready code with clear comments and usage example. 
+
 ```
 
 **Prompt 2: Code Review (Weak)**
@@ -775,9 +781,72 @@ def process(data):
 ```
 
 **Your Improved Version:**
+```markdown
+You are a senior Python engineer specialized in clean code.
+
+Your taks is to review and refactor the provided code following these team style guidelines:
+    - Use clear, descriptive names for variables and functions (snake_case)
+    - Add types hints where they make sense
+    - Include a docstring in Google pr NumPy format
+    Prefer list comprehensions and other Pythonic constructs when they improve readability
+    - Remove unnecessaru or redundante code
+    - Keep the exact same functionality.
+
+Here are some examples of how you should respond:
+
+#### Example 1:
+
+Original code:
+`python
+def process(data):
+    result = []
+    for item in data:
+        if item > 0:
+            result.append(item * 2)
+    return result
+`
+
+Refactored and improved code:
+
+`python
+def double_positive_numbers(numbers: list[float | int]) -> list[float | int]:
+    """Double only the positive numbers in a list.
+
+    Args:
+        numbers: A list of numbers (integers or floats).
+
+    Returns:
+        A new list containing double the value of each positive number.
+    """
+    return [num * 2 for num in numbers if num > 0]
+`
+
+#### Example 2:
+Original code:
+`python
+def getData(userID):
+    result = db.query(f"SELECT * FROM users WHERE id = {userID}")
+    return result
+`
+
+Refactored and improved code:
+
+`python
+from typing import Optional
+
+def get_user_data(user_id: int) -> Optional[User]:
+    """Fetch user data by ID.
+
+    Args:
+        user_id: The unique identifier of the user.
+
+    Returns:
+        User object if found, None otherwise.
+    """
+    return db.query(User).filter(User.id == user_id).first()
+`
 ```
-[Write your improved prompt here]
-```
+
 
 **Prompt 3: Debugging (Weak)**
 ```
@@ -795,7 +864,29 @@ def merge_sorted(a, b):
 
 **Your Improved Version:**
 ```
-[Write your improved prompt here]
+You are an expert Python debugger. Your task is to carefully analyze the code, identify the bug(s), explain what is wrong, and provide the corrected version.
+
+When solving this, use the following step-by-step process:
+
+    1. Generate **THREE independent reasoning chains**. For each chain:
+        - Read the code carefully
+        - Explain line by line what the code is doing
+        - Identify what is incorrect compared to the expected behavior of merging two sorted lists
+        - Describe exactly how the bug manifests (you can mentally simulate with small examples)
+        - Propose the corrected code
+    2. After you have generated all three chains, compare them.
+    3. Choose the **most consistent and correct solution** (the one that appears most frequently or makes the most sense if they differ).
+    4. In your final answer, provide **only**:
+
+Code to review:
+def merge_sorted(a, b):
+    result = []
+    while a and b:
+        if a[0] < b[0]:
+            result.append(a.pop())
+        else:
+            result.append(b.pop())
+    return result + a + b
 ```
 
 ### Reference Solutions
