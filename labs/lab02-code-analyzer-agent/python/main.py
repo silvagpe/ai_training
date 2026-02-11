@@ -34,7 +34,7 @@ class AnalyzeRequest(BaseModel):
 
 
 # Initialize analyzer with configured provider
-provider = os.getenv("LLM_PROVIDER", "anthropic")
+provider = os.getenv("LLM_PROVIDER", "google")
 llm = get_llm_client(provider)
 analyzer = CodeAnalyzer(llm)
 

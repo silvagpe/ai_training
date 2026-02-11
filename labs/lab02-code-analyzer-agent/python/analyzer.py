@@ -41,11 +41,9 @@ class CodeAnalyzer:
     def analyze(self, code: str, language: str = "python") -> AnalysisResult:
         """Analyze code and return structured result."""
         user_prompt = f"""Analyze this {language} code:
-
 ```{language}
 {code}
 ```
-
 Return your analysis as JSON."""
 
         response = self.llm.chat([
@@ -92,6 +90,7 @@ Return your analysis as JSON."""
     def _parse_response(self, response: str) -> AnalysisResult:
         """Parse LLM response into structured result."""
         # Handle markdown code blocks
+        print("Raw LLM response:", response)  # Debugging
         if "```json" in response:
             response = response.split("```json")[1].split("```")[0]
         elif "```" in response:
