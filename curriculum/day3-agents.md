@@ -3647,58 +3647,52 @@ Typical iterations for a project:
 
 ```markdown
 
-### Memory Requirements
-- **Short-term:**  
-  - Last 3–5 versions of the current file being migrated  
-  - Errors/exceptions from the most recent execution  
-  - Last action plan (ReAct thought → action → observation)
+## Code Migration Agent Design
 
-- **Long-term:**  
-  - Global Migration Plan (priorities, order, problematic dependencies)  
-  - Key design decisions made (e.g. "use six for compatibility" vs. "full str/bytes migration")  
-  - Recurring patterns observed in the project (e.g. "heavy cPickle usage → migrate to pickle + compat")  
-  - List of already-migrated files + their status
+### Agent Type
+[ ] ReAct (explore and migrate incrementally)  
+[ ] Planning (analyze all, plan migration, execute)  
+[x] **Hybrid (plan first, use ReAct for each step)**  
 
-- **Working memory:**  
-  - Current file context (~4000–8000 tokens)  
-  - Mapped imports + main classes/functions  
-  - Related tests (if available)
+**Why:**  
+- Python 2 → 3 migrations involve many **predictable patterns** (print → print(), unicode handling, integer division, dict methods like .keys()/.items(), etc.) that greatly benefit from an initial global analysis and planning phase of the entire project.  
+- However, there are numerous ambiguous or context-dependent cases (especially str/bytes handling, legacy libraries, dynamic behavior, custom metaprogramming) that require iterative reasoning, trial-and-error, and feedback loops — where ReAct excels.  
+- The **Hybrid** approach combines the best of both: high-level overview and dependency-aware planning + fine-grained, iterative correction per file.
 
-### Error Handling
-- **Syntax errors in migrated code?**  
-  → Detected by StaticAnalyzer/CodeExecutor in the ReAct loop → agent re-writes the problematic section (very common with print → print(), except Exception, value → as value, etc.)
+### Required Tools
+1. **Tool name:** Python2to3Fixer  
+   - **Purpose:** Runs the lib2to3 fixers (or an updated/modernized version) on a file or code snippet, returning the migrated code + unified diff  
+   - **Parameters:**  
+     - code_or_path: str (code string or file path)  
+     - fixers: list[str] (optional – e.g. ["all", "except", "print", "unicode"] – default: all available)  
+     - write: bool (whether to apply changes or just return the diff)
 
-- **Ambiguous migration patterns?**  
-  → Queries ContextRetriever + may ask user for clarification (e.g. "What encoding is expected in this file?")  
-  → Can insert temporary compatibility code (from six import PY2, PY3)  
-  → Marks as "needs_human_review" if ambiguity persists after 4–5 attempts
+2. **Tool name:** CodeExecutor  
+   - **Purpose:** Executes the migrated code in an isolated Python 3 environment and captures stdout, stderr, and exceptions  
+   - **Parameters:**  
+     - code: str  
+     - python_version: str = "3.11" (or any 3.9–3.12)  
+     - timeout: int = 15  
+     - input_data: str (optional – stdin content)
 
-- **Files it can't migrate automatically?**  
-  → After max_iterations (e.g. 7), generates a report including:  
-     - Problematic section  
-     - Last attempted version  
-     - Observed errors  
-     - Suggestion for human intervention  
-  → Moves file to manual_review/ folder
+3. **Tool name:** StaticAnalyzer  
+   - **Purpose:** Runs linters (e.g. pylint/pyflakes with Python 3 rules) + mypy (with --python-version 3) + scans for dangerous patterns (e.g. .encode() without .decode(), open() without encoding)  
+   - **Parameters:**  
+     - code_or_path: str  
+     - checks: list[str] (e.g. ["syntax", "type", "unicode", "bytes"])
 
-### Verification Strategy
-- Valid syntax (StaticAnalyzer)  
-- No critical linter/mypy warnings (especially mypy --strict)  
-- Executes without exceptions on typical scenarios (CodeExecutor with representative inputs)  
-- Unit tests pass (if available – ideally run pytest/unittest via tool)  
-- Behavioral comparison (if feasible: run Python 2 and Python 3 versions with same inputs and compare outputs)  
-- Final check: scan for remaining dangerous patterns (e.g. .encode() without .decode(), open() without encoding='utf-8', etc.)
+4. **Tool name:** ContextRetriever  
+   - **Purpose:** Retrieves relevant context from other parts of the project (imports, related tests, docstrings, nearby files) to resolve ambiguous decisions  
+   - **Parameters:**  
+     - current_file: str  
+     - symbol_or_line: str or int  
+     - max_lines: int = 400
 
-### Estimated Iterations
-- **Typical iterations for a single file:**  
-  2–6 iterations (simple small script → 2–3; medium file with unicode + dicts + print → 4–6; complex file with C extensions or heavy metaprogramming → 7+ or manual)
-
-- **Typical iterations for a project:**  
-  Depends heavily on size:  
-  - 5–15 small files → 30–100 total iterations  
-  - Medium legacy project (50–150 files) → 200–800 iterations  
-  - Large legacy codebase (>200k lines) → thousands of iterations + human intervention on ~10–25% of files
-
+5. **Tool name:** PatchApplier  
+   - **Purpose:** Applies a generated patch/diff to the original file (using git apply style or equivalent)  
+   - **Parameters:**  
+     - file_path: str  
+     - patch: str (unified diff format)
 
 ### Agent Flow
 
