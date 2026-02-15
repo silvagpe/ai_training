@@ -3643,6 +3643,155 @@ Typical iterations for a project:
 
 ---
 
+### Answer:
+
+```markdown
+
+### Memory Requirements
+- **Short-term:**  
+  - Last 3–5 versions of the current file being migrated  
+  - Errors/exceptions from the most recent execution  
+  - Last action plan (ReAct thought → action → observation)
+
+- **Long-term:**  
+  - Global Migration Plan (priorities, order, problematic dependencies)  
+  - Key design decisions made (e.g. "use six for compatibility" vs. "full str/bytes migration")  
+  - Recurring patterns observed in the project (e.g. "heavy cPickle usage → migrate to pickle + compat")  
+  - List of already-migrated files + their status
+
+- **Working memory:**  
+  - Current file context (~4000–8000 tokens)  
+  - Mapped imports + main classes/functions  
+  - Related tests (if available)
+
+### Error Handling
+- **Syntax errors in migrated code?**  
+  → Detected by StaticAnalyzer/CodeExecutor in the ReAct loop → agent re-writes the problematic section (very common with print → print(), except Exception, value → as value, etc.)
+
+- **Ambiguous migration patterns?**  
+  → Queries ContextRetriever + may ask user for clarification (e.g. "What encoding is expected in this file?")  
+  → Can insert temporary compatibility code (from six import PY2, PY3)  
+  → Marks as "needs_human_review" if ambiguity persists after 4–5 attempts
+
+- **Files it can't migrate automatically?**  
+  → After max_iterations (e.g. 7), generates a report including:  
+     - Problematic section  
+     - Last attempted version  
+     - Observed errors  
+     - Suggestion for human intervention  
+  → Moves file to manual_review/ folder
+
+### Verification Strategy
+- Valid syntax (StaticAnalyzer)  
+- No critical linter/mypy warnings (especially mypy --strict)  
+- Executes without exceptions on typical scenarios (CodeExecutor with representative inputs)  
+- Unit tests pass (if available – ideally run pytest/unittest via tool)  
+- Behavioral comparison (if feasible: run Python 2 and Python 3 versions with same inputs and compare outputs)  
+- Final check: scan for remaining dangerous patterns (e.g. .encode() without .decode(), open() without encoding='utf-8', etc.)
+
+### Estimated Iterations
+- **Typical iterations for a single file:**  
+  2–6 iterations (simple small script → 2–3; medium file with unicode + dicts + print → 4–6; complex file with C extensions or heavy metaprogramming → 7+ or manual)
+
+- **Typical iterations for a project:**  
+  Depends heavily on size:  
+  - 5–15 small files → 30–100 total iterations  
+  - Medium legacy project (50–150 files) → 200–800 iterations  
+  - Large legacy codebase (>200k lines) → thousands of iterations + human intervention on ~10–25% of files
+
+
+### Agent Flow
+
+Start
+↓
+[Planner] Analyzes the entire project (or folder) → generates Migration Plan
+
+Lists files by estimated complexity
+Identifies problematic external dependencies
+Determines migration order (leaf files → core → entry points)
+↓
+For each file in planned order:
+↓
+[ReAct Loop – per file]
+
+
+Read original code
+Run Python2to3Fixer → obtain initial migrated version (v1)
+Run StaticAnalyzer on v1
+While serious errors/warnings remain:
+Observe errors → think → decide next action
+Possible actions:
+• Manually rewrite problematic section (LLM generates patch)
+• Query ContextRetriever for more context
+• Run CodeExecutor with representative inputs
+• Add future imports (division, unicode_literals, etc.)
+• Introduce temporary compatibility layer (six / python-future if needed)
+Generate new version → loop back to step 3
+
+When analyzer passes → execute unit tests (via CodeExecutor or test runner tool)
+If tests fail → feed back errors → retry (up to max_attempts ~4–7)
+↓
+[PatchApplier] Applies confirmed changes to the repository
+↓
+Next file
+↓
+End → Final report (successful files, remaining warnings, files needing manual review)
+
+
+### Memory Requirements
+- **Short-term:**  
+  - Last 3–5 versions of the current file being migrated  
+  - Errors/exceptions from the most recent execution  
+  - Last action plan (ReAct thought → action → observation)
+
+- **Long-term:**  
+  - Global Migration Plan (priorities, order, problematic dependencies)  
+  - Key design decisions made (e.g. "use six for compatibility" vs. "full str/bytes migration")  
+  - Recurring patterns observed in the project (e.g. "heavy cPickle usage → migrate to pickle + compat")  
+  - List of already-migrated files + their status
+
+- **Working memory:**  
+  - Current file context (~4000–8000 tokens)  
+  - Mapped imports + main classes/functions  
+  - Related tests (if available)
+
+### Error Handling
+- **Syntax errors in migrated code?**  
+  → Detected by StaticAnalyzer/CodeExecutor in the ReAct loop → agent re-writes the problematic section (very common with print → print(), except Exception, value → as value, etc.)
+
+- **Ambiguous migration patterns?**  
+  → Queries ContextRetriever + may ask user for clarification (e.g. "What encoding is expected in this file?")  
+  → Can insert temporary compatibility code (from six import PY2, PY3)  
+  → Marks as "needs_human_review" if ambiguity persists after 4–5 attempts
+
+- **Files it can't migrate automatically?**  
+  → After max_iterations (e.g. 7), generates a report including:  
+     - Problematic section  
+     - Last attempted version  
+     - Observed errors  
+     - Suggestion for human intervention  
+  → Moves file to manual_review/ folder
+
+### Verification Strategy
+- Valid syntax (StaticAnalyzer)  
+- No critical linter/mypy warnings (especially mypy --strict)  
+- Executes without exceptions on typical scenarios (CodeExecutor with representative inputs)  
+- Unit tests pass (if available – ideally run pytest/unittest via tool)  
+- Behavioral comparison (if feasible: run Python 2 and Python 3 versions with same inputs and compare outputs)  
+- Final check: scan for remaining dangerous patterns (e.g. .encode() without .decode(), open() without encoding='utf-8', etc.)
+
+### Estimated Iterations
+- **Typical iterations for a single file:**  
+  2–6 iterations (simple small script → 2–3; medium file with unicode + dicts + print → 4–6; complex file with C extensions or heavy metaprogramming → 7+ or manual)
+
+- **Typical iterations for a project:**  
+  Depends heavily on size:  
+  - 5–15 small files → 30–100 total iterations  
+  - Medium legacy project (50–150 files) → 200–800 iterations  
+  - Large legacy codebase (>200k lines) → thousands of iterations + human intervention on ~10–25% of files
+```
+
+
 <a name="multi-agent"></a>
 ## 5. Multi-Agent Systems (1 hour)
 
