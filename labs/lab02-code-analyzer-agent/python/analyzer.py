@@ -46,6 +46,8 @@ class CodeAnalyzer:
 ```
 Return your analysis as JSON."""
 
+        print("Analysis prompt:", user_prompt)  # Debugging
+
         response = self.llm.chat([
             {"role": "system", "content": self.system_prompt},
             {"role": "user", "content": user_prompt}
@@ -62,6 +64,8 @@ Return your analysis as JSON."""
 ```
 
 {SECURITY_FOCUS_PROMPT}"""
+        
+        print("Security analysis prompt:", user_prompt)  # Debugging
 
         response = self.llm.chat([
             {"role": "system", "content": self.system_prompt},
@@ -79,6 +83,8 @@ Return your analysis as JSON."""
 ```
 
 {PERFORMANCE_FOCUS_PROMPT}"""
+
+        print("Performance analysis prompt:", user_prompt)  # Debugging
 
         response = self.llm.chat([
             {"role": "system", "content": self.system_prompt},
