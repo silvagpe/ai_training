@@ -430,6 +430,7 @@ lab03-migration-workflow/
 
 **Next**: [Lab 04 - RAG System](../lab04-rag-system/)
 
+Deploy: https://migration-workflow-production.up.railway.app/health
 
 request result example: 
 ```json
