@@ -17,6 +17,8 @@ class MigrationAgent:
             state = self._step(state)
             if state.errors:
                 break
+        
+        print(f"Migration completed with {len(state.errors)} errors.")
         return state
 
     def _step(self, state: MigrationState) -> MigrationState:
@@ -32,6 +34,7 @@ class MigrationAgent:
         return state
 
     def _analyze(self, state: MigrationState) -> MigrationState:
+        print("Phase 1: Analyze source code.")
         """Phase 1: Analyze source code."""
         all_analysis = {}
 
@@ -55,9 +58,12 @@ class MigrationAgent:
 
         state.analysis = all_analysis
         state.phase = Phase.PLANNING
+
+        print(f"Analysis completed for {len(state.analysis)} files.")
         return state
 
     def _plan(self, state: MigrationState) -> MigrationState:
+        print("Phase 2: Create migration plan.")
         """Phase 2: Create migration plan."""
         prompt = PLANNING_PROMPT.format(
             analysis=json.dumps(state.analysis, indent=2),
@@ -84,9 +90,11 @@ class MigrationAgent:
             return state
 
         state.phase = Phase.EXECUTION
+        print(f"Planning completed with {len(state.plan)} steps.")
         return state
 
     def _execute(self, state: MigrationState) -> MigrationState:
+        print("Phase 3: Execute migration steps.")
         """Phase 3: Execute migration steps."""
         while state.current_step < len(state.plan):
             step = state.plan[state.current_step]
@@ -119,9 +127,11 @@ class MigrationAgent:
             state.current_step += 1
 
         state.phase = Phase.VERIFICATION
+        print(f"Execution completed for {len(state.plan)} steps.")
         return state
 
     def _verify(self, state: MigrationState) -> MigrationState:
+        print("Phase 4: Verify migration results.")
         """Phase 4: Verify migration results."""
         verification = {
             "files_migrated": len(state.migrated_files),
@@ -162,6 +172,7 @@ class MigrationAgent:
 
         state.verification_result = verification
         state.phase = Phase.COMPLETE
+        print(f"Verification completed with {len(verification['issues'])} issues found.")
         return state
 
     def _detect_language(self, filename: str) -> str:
