@@ -1832,7 +1832,104 @@ You're building a system that lets developers ask questions about a large codeba
 3.
 ```
 
+### Answer:
+
+#### Codebase RAG Architecture
+
+#### Document Types to Index
+
+1. Python Code
+
+- Chunking: Code-Aware (AST) — functions and classes as units
+- Chunk size: complete logical unit (no fixed limit)
+- Metadata: filename, function/class name, line_start, line_end, file imports, docstring
+
+2. TypeScript Code
+
+- Chunking: Code-Aware via regex (no native AST) — functions, classes, interfaces
+- Chunk size: complete logical unit
+- Metadata: filename, function/class name, line_start, exported: bool, docstring/JSDoc
+
+3. Documentation and READMEs
+
+- Chunking: Semantic by paragraphs/sections
+- Chunk size: ~512 tokens with ~50 token overlap
+- Metadata: filename, section title, heading breadcrumb (e.g. Auth > JWT > Refresh Token)
+
+
+#### Query Handling
+**Code-specific queries** ("What does processOrder do?")
+Detect function/class names via regex before searching. Perform a direct metadata lookup (name == "processOrder") combined with vector search — exact match takes priority.
+
+**Conceptual queries** ("How does authentication work?")
+Pure vector search over documentation chunks and docstrings. Embeddings capture the concept even without mentioning a specific function name.
+
+**Multi-file queries** ("How do A and B interact?")
+Retrieve chunks from both contexts and include import/dependency metadata so the LLM can reconstruct the relationship. Graph-based retrieval can be added if complexity demands it.
+
+#### Retrieval Strategy
+**Vector search:** code-specialized embedding model — text-embedding-3-large or CodeBERT. Separate index per document type (code vs. docs) to avoid noise.
+
+**Hybrid search?** Yes. Combine BM25 + vector search with RRF (Reciprocal Rank Fusion). BM25 is critical here because function names, variables, and symbols are exact-match problems — embeddings can confuse processOrder vs process_order, BM25 won't.
+
+**Reranking:** Cross-encoder (ms-marco-MiniLM) over top-20 results to select top-5. The cost is worth it since the context sent to the LLM must be precise.
+
+#### Generation
+**System prompt:** instruct the model to always cite the source file and line number, never fabricate implementations not present in the retrieved chunks, and to distinguish between explicit findings vs. inferences.
+
+**Code formatting:** always in fenced code blocks with language specified (```python, ```typescript), preceded by the file path.
+
+**Source citation:** at the end of each response, a reference list in the format:
+```
+📄 src/auth/jwt.py — lines 42-78 (validate_token function)
+📄 docs/auth.md — section "Token Refresh Flow"
+```
+
+#### Architecture Diagram
+
+``` 
+User query
+      │
+      ▼
+┌─────────────────┐
+│  Query Analyzer │ → detects type (code/conceptual/multi-file)
+│                 │ → extracts symbols (function names, classes)
+└────────┬────────┘
+         │
+    ┌────┴─────┐
+    ▼          ▼
+BM25         Vector Search
+(symbols)    (semantic)
+    │          │
+    └────┬─────┘
+         │ RRF Fusion
+         ▼
+   Top-20 results
+         │
+         ▼
+  ┌─────────────┐
+  │  Reranker   │ → Cross-encoder → Top-5
+  └──────┬──────┘
+         │
+         ▼
+  ┌─────────────┐
+  │  LLM + ctx  │ → response with citations
+  └─────────────┘
+``` 
+
+#### Potential Issues
+- 1. Duplicate or overlapping functions in the index — AST walk may index a method both as part of its class and individually. Need to deduplicate by filename + line_start.
+- 2. Code without docstrings or poorly documented — embeddings for undocumented code are weak. Mitigation: generate synthetic docstrings with an LLM at indexing time ("pre-processing enrichment").
+- 3. Queries about flows spanning many files — a single retrieval pass won't capture the full chain. Mitigation: implement iterative retrieval (the LLM requests additional chunks as it reasons through the answer).
+
+#### Metrics to Track
+- 1. Retrieval Recall@5 — was the correct answer within the top-5 retrieved chunks? The foundation of everything.
+- 2. Answer Faithfulness — did the LLM hallucinate anything not present in the retrieved chunks? Measured with LLM-as-judge.
+- 3. End-to-end latency by query type — conceptual queries vs. code-specific ones tend to have very different profiles; monitoring them separately helps optimize each path independently.
+
 ---
+
+
 
 <a name="evaluation"></a>
 ## 5. Evaluation Fundamentals (45 min)
