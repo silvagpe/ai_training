@@ -209,3 +209,4 @@ marimo/_lsp/
 __marimo__/
 **/node_modules
 **/.next
+**/chroma_db

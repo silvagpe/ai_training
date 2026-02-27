@@ -63,7 +63,8 @@ class QueryResponse(BaseModel):
 
 
 # Initialize RAG
-provider = os.getenv("LLM_PROVIDER", "anthropic")
+provider = os.getenv("LLM_PROVIDER", "google")
+print(f"Using LLM provider: {provider}")
 llm = get_llm_client(provider)
 rag = CodebaseRAG(llm)
 
