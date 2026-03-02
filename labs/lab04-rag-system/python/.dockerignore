@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.env
+.env.*
+chroma_db/
+.git/
+.gitignore
+.DS_Store
+*.log

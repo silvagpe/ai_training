@@ -3,6 +3,36 @@ import chromadb
 from chromadb.utils import embedding_functions
 from typing import List, Dict, Any, Optional
 import os
+import hashlib
+
+
+class LightweightHashEmbeddingFunction:
+    """Small deterministic embedding function without heavy ML dependencies."""
+
+    def __init__(self, dim: int = 384):
+        self.dim = dim
+
+    def __call__(self, input: List[str]) -> List[List[float]]:
+        vectors = []
+        for text in input:
+            vector = [0.0] * self.dim
+            tokens = text.lower().split()
+            if not tokens:
+                vectors.append(vector)
+                continue
+
+            for token in tokens:
+                digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+                idx = int(digest[:8], 16) % self.dim
+                sign = 1.0 if int(digest[8:10], 16) % 2 == 0 else -1.0
+                vector[idx] += sign
+
+            norm = sum(v * v for v in vector) ** 0.5
+            if norm > 0:
+                vector = [v / norm for v in vector]
+
+            vectors.append(vector)
+        return vectors
 
 
 class CodebaseVectorStore:
@@ -16,7 +46,8 @@ class CodebaseVectorStore:
         # Initialize ChromaDB with persistence
         self.client = chromadb.PersistentClient(path=persist_directory)
 
-        # Use OpenAI embeddings (can swap for sentence-transformers)
+        # Use OpenAI embeddings when key is available.
+        # Otherwise fallback to a lightweight local embedding (no heavy ML deps).
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             self.embedding_fn = embedding_functions.OpenAIEmbeddingFunction(
@@ -24,10 +55,8 @@ class CodebaseVectorStore:
                 model_name="text-embedding-3-small"
             )
         else:
-            # Fallback to sentence-transformers (free, local)
-            self.embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name="all-MiniLM-L6-v2"
-            )
+            print("OPENAI_API_KEY not set. Using lightweight local hash embeddings.")
+            self.embedding_fn = LightweightHashEmbeddingFunction(dim=384)
 
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
