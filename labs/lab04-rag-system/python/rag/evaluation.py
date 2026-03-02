@@ -1,6 +1,7 @@
 """RAG Evaluation utilities."""
 from typing import List, Dict, Set, Optional
 from dataclasses import dataclass
+import time
 
 
 @dataclass
@@ -71,9 +72,17 @@ class RAGEvaluator:
 
     def evaluate_generation(
         self,
-        examples: List[EvalExample]
+        examples: List[EvalExample],
+        delay_between_examples: float = 15.0
     ) -> Dict:
-        """Evaluate generation quality using LLM-as-judge."""
+        """Evaluate generation quality using LLM-as-judge.
+        
+        Args:
+            examples: List of evaluation examples
+            delay_between_examples: Seconds to wait between examples to avoid rate limits.
+                                   Default 15s works with Google Gemini free tier (5 req/min).
+                                   Set to 0 to disable delays.
+        """
         if not self.judge:
             return {"error": "No LLM judge configured"}
 
@@ -82,7 +91,14 @@ class RAGEvaluator:
             'accuracy': []
         }
 
-        for example in examples:
+        for i, example in enumerate(examples):
+            # Add delay before processing (except for first example)
+            if i > 0 and delay_between_examples > 0:
+                print(f"   ⏳ Waiting {delay_between_examples}s to avoid rate limits...")
+                time.sleep(delay_between_examples)
+            
+            print(f"   📝 Evaluating example {i+1}/{len(examples)}: {example.question[:50]}...")
+            
             result = self.rag.query(example.question)
             generated = result['answer']
 

@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What code analysis endpoints does the API provide?",
+    "expected_answer": "The API provides three analysis endpoints: /analyze for general code analysis, /analyze/security for security-focused analysis, and /analyze/performance for performance-focused analysis.",
+    "relevant_files": ["main.py"]
+  },
+  {
+    "question": "Which LLM providers are supported by the system?",
+    "expected_answer": "The system supports three LLM providers: Anthropic (Claude), OpenAI (GPT), and Google (Gemini). Each is implemented as a separate class that inherits from LLMClient.",
+    "relevant_files": ["llm_client.py"]
+  },
+  {
+    "question": "How does the security code analysis work?",
+    "expected_answer": "Security analysis uses the /analyze/security endpoint which calls the analyze_security() method of CodeAnalyzer. This method applies the SECURITY_FOCUS_PROMPT that checks for vulnerabilities like SQL injection, command injection, path traversal, hardcoded secrets, and other security issues.",
+    "relevant_files": ["main.py", "analyzer.py", "prompts.py"]
+  }
+]

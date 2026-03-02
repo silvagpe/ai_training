@@ -1,0 +1,77 @@
+[
+  {
+    "question": "What code analysis endpoints does the API provide?",
+    "expected_answer": "The API provides three analysis endpoints: /analyze for general code analysis, /analyze/security for security-focused analysis, and /analyze/performance for performance-focused analysis.",
+    "relevant_files": ["main.py"]
+  },
+  {
+    "question": "Which LLM providers are supported by the system?",
+    "expected_answer": "The system supports three LLM providers: Anthropic (Claude), OpenAI (GPT), and Google (Gemini). Each is implemented as a separate class that inherits from LLMClient.",
+    "relevant_files": ["llm_client.py"]
+  },
+  {
+    "question": "What issue severities can the code analyzer return?",
+    "expected_answer": "The analyzer can return issues with four severity levels: critical, high, medium, and low.",
+    "relevant_files": ["analyzer.py", "prompts.py"]
+  },
+  {
+    "question": "How does the system handle JSON responses from the LLM that come inside markdown code blocks?",
+    "expected_answer": "The _parse_response method in CodeAnalyzer detects and removes markdown code blocks (```json or ```) before parsing the JSON response.",
+    "relevant_files": ["analyzer.py"]
+  },
+  {
+    "question": "What categories of code issues are identified by the analysis?",
+    "expected_answer": "The system identifies five issue categories: bug (errors), security (security vulnerabilities), performance (performance issues), style (code style), and maintainability (maintainability issues).",
+    "relevant_files": ["prompts.py", "analyzer.py"]
+  },
+  {
+    "question": "How does the security code analysis work?",
+    "expected_answer": "Security analysis uses the /analyze/security endpoint which calls the analyze_security() method of CodeAnalyzer. This method applies the SECURITY_FOCUS_PROMPT that checks for vulnerabilities like SQL injection, command injection, path traversal, hardcoded secrets, and other security issues.",
+    "relevant_files": ["main.py", "analyzer.py", "prompts.py"]
+  },
+  {
+    "question": "What is the default model used for each LLM provider?",
+    "expected_answer": "The default models are: claude-3-5-sonnet-20241022 for Anthropic, gpt-4o for OpenAI, and gemini-3-flash-preview for Google.",
+    "relevant_files": ["llm_client.py"]
+  },
+  {
+    "question": "What fields make up the AnalysisResult structure?",
+    "expected_answer": "AnalysisResult contains four fields: summary (analysis overview), issues (list of problems found), suggestions (general improvement suggestions), and metrics (code quality metrics).",
+    "relevant_files": ["analyzer.py"]
+  },
+  {
+    "question": "What code quality metrics are estimated by the analysis?",
+    "expected_answer": "The system estimates three metrics: complexity (low/medium/high), readability (poor/fair/good/excellent), and test_coverage_estimate (none/partial/good).",
+    "relevant_files": ["analyzer.py", "prompts.py"]
+  },
+  {
+    "question": "How does GoogleClient adapt messages for the Gemini format?",
+    "expected_answer": "GoogleClient extracts system messages, converts assistant messages to the 'model' role, and combines the system message with the user message into a single prompt before sending to Gemini.",
+    "relevant_files": ["llm_client.py"]
+  },
+  {
+    "question": "What types of performance issues does the analyzer look for?",
+    "expected_answer": "Performance analysis checks for: algorithmic complexity (Big O), memory usage and leaks, unnecessary loops, caching opportunities, database query optimization, async/await patterns, and resource management.",
+    "relevant_files": ["prompts.py"]
+  },
+  {
+    "question": "How does the system determine which LLM provider to use?",
+    "expected_answer": "The provider is determined by the LLM_PROVIDER environment variable (default 'google'). The main.py reads this variable and uses the get_llm_client() function to instantiate the appropriate client.",
+    "relevant_files": ["main.py", "llm_client.py"]
+  },
+  {
+    "question": "What does the /health endpoint return?",
+    "expected_answer": "The /health endpoint returns a JSON with status 'healthy' and the currently configured LLM provider.",
+    "relevant_files": ["main.py"]
+  },
+  {
+    "question": "How does AnthropicClient handle system messages?",
+    "expected_answer": "AnthropicClient separates system messages from others, filtering them from the message list and passing them separately through the system parameter in the Claude API call.",
+    "relevant_files": ["llm_client.py"]
+  },
+  {
+    "question": "What information does each Issue found by the analyzer contain?",
+    "expected_answer": "Each Issue contains: severity (severity level), line (line number, optional), category (issue category), description (problem explanation), and suggestion (how to fix it).",
+    "relevant_files": ["analyzer.py", "prompts.py"]
+  }
+]

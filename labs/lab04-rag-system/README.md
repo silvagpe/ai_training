@@ -452,12 +452,22 @@ lab04-rag-system/
 
 ## Deliverables
 
-- [ ] Working RAG system with code indexing
-- [ ] Smart code-aware chunking
-- [ ] Evaluation framework with retrieval metrics
-- [ ] LLM-as-judge generation evaluation
+- [x] Working RAG system with code indexing
+- [x] Smart code-aware chunking
+- [x] Evaluation framework with retrieval metrics
+- [x] LLM-as-judge generation evaluation
 - [ ] Deployed to Railway/Vercel
-- [ ] Evaluation dataset (10+ examples)
+- [x] Evaluation dataset (10+ examples)
+
+
+| Deliverable | Status | Localização |
+|-------------|--------|-------------|
+| Working RAG system with code indexing | ✅ Completed | `rag/pipeline.py` - `index_directory()`, `index_files()` |
+| Smart code-aware chunking | ✅ Completed | `rag/chunker.py` - chunking Python/JS/TypeScript |
+| Evaluation framework with retrieval metrics | ✅ Completed | `rag/evaluation.py` - precision@k, recall@k, MRR |
+| LLM-as-judge generation evaluation | ✅ Completed | `rag/evaluation.py` - `_judge_relevance()`, `_judge_accuracy()` |
+| Deployed to Railway/Vercel | ❌ Faltando | Requer `railway.json`, `vercel.json` ou `Dockerfile` |
+| Evaluation dataset (10+ examples) | ✅ Completed | `eval_examples.json` (3), `eval_examples_full.json` (15), `run_evaluation.py` |
 
 ---
 
@@ -471,3 +481,6 @@ lab04-rag-system/
 ---
 
 **Next**: [Lab 05 - Multi-Agent Orchestration](../lab05-multi-agent/)
+
+
+
