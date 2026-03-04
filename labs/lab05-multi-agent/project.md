@@ -130,6 +130,7 @@ python/
 │   └── snapshots/
 │       ├── fii_snapshot.json
 │       └── ifix_5y.json
+│       └── recommended_portfolio.json
 ├── services/
 │   ├── portfolio_service.py
 │   └── evaluation_service.py
@@ -141,3 +142,91 @@ python/
     ├── test_projection.py
     ├── test_supervisor_flow.py
     └── test_api_run.py
+```
+
+
+
+# Fluxo de Análise e Recomendação — FII Portfolio Analyzer
+
+## Novo Fluxo (Researcher Agent)
+
+### Etapa 1: Comparação da Carteira do Cliente vs Recomendações
+
+```text
+Carteira do Cliente
+├─ KNCR11 (Kinea Rendimentos)
+└─ [outros ativos...]
+↓
+Cruzar com Carteira Recomendada
+├─ XPML11 (XP Malls)
+├─ HGLG11 (Pátria Log)
+├─ MXRF11 (Maxi Renda)
+└─ [outros...]
+↓
+Para cada ativo do cliente:
+┌─ Está em recomendações?
+│ ├─ SIM → MANTER (rebalancear peso se necessário)
+│ └─ NÃO → VENDER/TROCAR
+│
+└─ Está em recomendações mas não na carteira?
+└─ COMPRAR
+```
+
+
+### Etapa 2: Lógica de Decisão por Ativo
+
+| Cenário | Ação | Justificativa |
+|---------|------|--------------|
+| Ativo do cliente está na recomendação | **MANTER** | Validado pelas regras e análise |
+| Ativo do cliente NÃO está na recomendação | **AVALIAR** | Verificar se não cumpre regras ou baixos retornos |
+| Ativo recomendado NÃO está na carteira | **COMPRAR** | Oportunidade de diversificação |
+| P/VP desfavorável (ex: > 1,10) | **VENDER/TROCAR** | Superavaliado, trocar por alternativa melhor |
+
+---
+
+## Resultado Esperado
+
+### 1. Análise Consolidada (output do Researcher)
+
+```json
+{
+  "client_portfolio": {
+    "assets": [
+      {
+        "ticker": "KNCR11",
+        "name": "Kinea Rendimentos Imobiliários",
+        "current_price": 9.66,
+        "allocation_pct": 50.0
+      }
+    ],
+    "total_value_brl": 100000
+  },
+  "analysis": {
+    "hold_assets": [
+      {
+        "ticker": "KNCR11",
+        "action": "MANTER",
+        "reason": "Ativo sólido, atende regras mínimas (DY 13.77%, P/VP 1.04)",
+        "current_weight": 50.0,
+        "recommended_weight": 10.0,
+        "rebalance_needed": true
+      }
+    ],
+    "buy_assets": [
+      {
+        "ticker": "XPML11",
+        "action": "COMPRAR",
+        "reason": "Recomendado para diversificação em varejo, P/VP 1.00",
+        "recommended_weight": 10.0,
+        "suggested_allocation_brl": 10000
+      },
+      {
+        "ticker": "HGLG11",
+        "action": "COMPRAR",
+        "reason": "Diversificação em logística, P/VP abaixo de 1.0",
+        "recommended_weight": 5.0,
+        "suggested_allocation_brl": 5000
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "as_of": "2026-03-01",
+  "portfolio_profile": "conservador_diversificado",
+  "total_weight_pct": 100,
+  "recommendations": [
+    {
+      "ticker": "XPML11",
+      "name": "XP MALLS FUNDOS",
+      "segment": "shoppings_varejo",
+      "fund_type": "tijolo",
+      "action": "comprar",
+      "recommended_weight_pct": 10.0,
+      "price_to_book": 1.00,
+      "dy_pct": 9.97,
+      "last_price": 110.70,
+      "rationale": "Fundo sólido com bom spread P/VP, forte diversificação em varejo resiliente"
+    },
+    {
+      "ticker": "HGLG11",
+      "name": "PÁTRIA LOG",
+      "segment": "logistica_industria",
+      "fund_type": "tijolo",
+      "action": "comprar",
+      "recommended_weight_pct": 5.0,
+      "price_to_book": 0.95,
+      "dy_pct": 8.35,
+      "last_price": 158.15,
+      "rationale": "Logística resiliente, P/VP abaixo de 1.0 (subavaliado), diversificação setorial estratégica"
+    },
+    {
+      "ticker": "MXRF11",
+      "name": "MAXI RENDA",
+      "segment": "recebiveis",
+      "fund_type": "papel",
+      "action": "comprar",
+      "recommended_weight_pct": 5.0,
+      "price_to_book": 1.03,
+      "dy_pct": 12.28,
+      "last_price": 9.66,
+      "rationale": "Fundo de papel com retorno atraente, complementa portfólio com receita de crédito"
+    },
+    {
+      "ticker": "VGHF11",
+      "name": "VALORA REAL ESTATE",
+      "segment": "misto",
+      "fund_type": "misto",
+      "action": "comprar",
+      "recommended_weight_pct": 5.0,
+      "price_to_book": 0.98,
+      "dy_pct": 11.05,
+      "last_price": 15.50,
+      "rationale": "Fundo misto com excelente equilíbrio, P/VP justo, oferece diversificação estratégica"
+    }
+  ]
+}
