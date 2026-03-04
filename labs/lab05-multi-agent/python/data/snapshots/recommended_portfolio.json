@@ -12,8 +12,7 @@
       "recommended_weight_pct": 10.0,
       "price_to_book": 1.00,
       "dy_pct": 9.97,
-      "last_price": 110.70,
-      "rationale": "Fundo sólido com bom spread P/VP, forte diversificação em varejo resiliente"
+      "last_price": 110.70
     },
     {
       "ticker": "HGLG11",
@@ -24,32 +23,117 @@
       "recommended_weight_pct": 5.0,
       "price_to_book": 0.95,
       "dy_pct": 8.35,
-      "last_price": 158.15,
-      "rationale": "Logística resiliente, P/VP abaixo de 1.0 (subavaliado), diversificação setorial estratégica"
+      "last_price": 158.15
     },
     {
       "ticker": "MXRF11",
       "name": "MAXI RENDA",
-      "segment": "recebiveis",
+      "segment": "hibrido",
       "fund_type": "papel",
       "action": "comprar",
       "recommended_weight_pct": 5.0,
       "price_to_book": 1.03,
       "dy_pct": 12.28,
-      "last_price": 9.66,
-      "rationale": "Fundo de papel com retorno atraente, complementa portfólio com receita de crédito"
+      "last_price": 9.66
     },
     {
-      "ticker": "VGHF11",
-      "name": "VALORA REAL ESTATE",
-      "segment": "misto",
-      "fund_type": "misto",
+      "ticker": "PVBI11",
+      "name": "VBI PRIME PROPERTIES",
+      "segment": "lajes_corporativas",
+      "fund_type": "tijolo",
+      "action": "comprar",
+      "recommended_weight_pct": 10.0,
+      "price_to_book": 0.74,
+      "dy_pct": 7.11,
+      "last_price": 79.39
+    },
+    {
+      "ticker": "VISC11",
+      "name": "VINCI SHOPPING CENTER",
+      "segment": "shoppings_varejo",
+      "fund_type": "tijolo",
+      "action": "comprar",
+      "recommended_weight_pct": 10.0,
+      "price_to_book": 0.94,
+      "dy_pct": 8.75,
+      "last_price": 111.39
+    },
+    {
+      "ticker": "XPLG11",
+      "name": "XP LOG",
+      "segment": "logistica_industria",
+      "fund_type": "tijolo",
+      "action": "comprar",
+      "recommended_weight_pct": 10.0,
+      "price_to_book": 0.96,
+      "dy_pct": 9.72,
+      "last_price": 101.53
+    },
+    {
+      "ticker": "XPCI11",
+      "name": "XP CRÉDITO IMOBILIÁRIO",
+      "segment": "titulos_valores_mobiliarios",
+      "fund_type": "papel",
+      "action": "comprar",
+      "recommended_weight_pct": 12.5,
+      "price_to_book": 0.94,
+      "dy_pct": 12.99,
+      "last_price": 84.24
+    },
+    {
+      "ticker": "KNIP11",
+      "name": "KINEA ÍNDICE DE PREÇO",
+      "segment": "titulos_valores_mobiliarios",
+      "fund_type": "papel",
+      "action": "comprar",
+      "recommended_weight_pct": 12.5,
+      "price_to_book": 0.97,
+      "dy_pct": 10.68,
+      "last_price": 90.57
+    },
+    {
+      "ticker": "GARE11",
+      "name": "GUARDIAN REAL ESTATE",
+      "segment": "hibrido",
+      "fund_type": "tijolo",
       "action": "comprar",
       "recommended_weight_pct": 5.0,
-      "price_to_book": 0.98,
-      "dy_pct": 11.05,
-      "last_price": 15.50,
-      "rationale": "Fundo misto com excelente equilíbrio, P/VP justo, oferece diversificação estratégica"
+      "price_to_book": 0.89,
+      "dy_pct": 11.69,
+      "last_price": 8.52
+    },
+    {
+      "ticker": "JURO11",
+      "name": "SPARTA INFRA",
+      "segment": "infraestrutura",
+      "fund_type": "outro",
+      "action": "comprar",
+      "recommended_weight_pct": 10.0,
+      "price_to_book": 1.00,
+      "dy_pct": 11.70,
+      "last_price": 102.57
+    },
+    {
+      "ticker": "KNCA11",
+      "name": "KINEA CRÉDITO AGRO",
+      "segment": "fiagros",
+      "fund_type": "outro",
+      "action": "comprar",
+      "recommended_weight_pct": 5.0,
+      "price_to_book": 0.94,
+      "dy_pct": 13.91,
+      "last_price": 96.13
+    },
+    {
+      "ticker": "SNAG11",
+      "name": "SUNO AGRO",
+      "segment": "fiagros",
+      "fund_type": "outro",
+      "action": "comprar",
+      "recommended_weight_pct": 5.0,
+      "price_to_book": 1.04,
+      "dy_pct": 13.94,
+      "last_price": 10.69
     }
   ]
 }
