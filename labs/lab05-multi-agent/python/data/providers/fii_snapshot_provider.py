@@ -45,7 +45,7 @@ class IFIXProvider:
     def get_returns(self) -> list:
         """Get list of monthly returns (%)."""
         data = self.load()
-        return [s["return_pct"] for s in data["series"]]
+        return [s["return_pct"] for s in data["series"] if s.get("return_pct") is not None]
 
     def get_series_dates(self) -> list:
         """Get list of dates."""
@@ -70,4 +70,4 @@ class RecommendedPortfolioProvider:
     def get_tickers(self) -> list:
         """Get list of recommended tickers."""
         portfolio = self.load()
-        return [rec["ticker"] for rec in portfolio.recommendations]
+        return [rec.ticker for rec in portfolio.recommendations]

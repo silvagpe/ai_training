@@ -91,7 +91,6 @@ class PortfolioService:
                 portfolio_returns = first_fii.monthly_returns_pct
 
         # Get IFIX benchmark
-        ifix_provider = self.fii_provider.get_returns  # Placeholder
         ifix_benchmark = BenchmarkComparison.get_ifix_benchmark()
         benchmark_returns = ifix_benchmark["returns"]
 

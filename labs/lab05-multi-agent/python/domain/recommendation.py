@@ -35,7 +35,7 @@ class RecommendationEngine:
         fii_lookup = {fii.ticker: fii for fii in fii_snapshot.fiis}
 
         # Get recommended tickers
-        recommended_tickers = {rec["ticker"] for rec in recommended.recommendations}
+        recommended_tickers = {rec.ticker for rec in recommended.recommendations}
 
         hold_assets = []
         buy_assets = []
@@ -100,8 +100,8 @@ class RecommendationEngine:
         client_tickers = {asset.ticker for asset in client_portfolio}
 
         for rec in recommended.recommendations:
-            if rec["ticker"] not in client_tickers:
-                fii = fii_lookup[rec["ticker"]]
+            if rec.ticker not in client_tickers:
+                fii = fii_lookup[rec.ticker]
                 buy_assets.append(
                     AssetAnalysis(
                         ticker=fii.ticker,
@@ -112,9 +112,9 @@ class RecommendationEngine:
                         current_price=fii.price_to_book,  # Approximation
                         dy_pct=fii.dy_12m_pct,
                         price_to_book=fii.price_to_book,
-                        reason=rec["rationale"],
+                        reason=rec.rationale or "Recommended by portfolio strategy.",
                         source="recommended",
-                        weight_recommended_pct=rec["recommended_weight_pct"],
+                        weight_recommended_pct=rec.recommended_weight_pct,
                     )
                 )
 

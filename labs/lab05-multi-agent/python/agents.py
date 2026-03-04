@@ -12,7 +12,7 @@ For the given portfolio analysis data:
 3. Evaluate diversification: What types (Tijolo/Papel/Misto) are represented?
 4. Note dividend yield trends and P/VP valuations
 5. Summarize risk profile (conservative/aggressive/balanced)
-
+re
 Be specific and reference exact metrics. Focus on objective compliance with rules."""
 
 WRITER_PROMPT = """You are a financial advisor crafting personalized portfolio recommendations for Brazilian real estate investors.

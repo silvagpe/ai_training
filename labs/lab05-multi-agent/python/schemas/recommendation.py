@@ -14,7 +14,7 @@ class RecommendedFII(BaseModel):
     price_to_book: float
     dy_pct: float
     last_price: float
-    rationale: str
+    rationale: Optional[str] = None
 
 
 class RecommendedPortfolio(BaseModel):

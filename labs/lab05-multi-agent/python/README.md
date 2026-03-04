@@ -94,6 +94,19 @@ uvicorn main:app --reload --port 8000
 curl http://localhost:8000/docs
 ```
 
+### 5. Update `fii_snapshot.json` from CSV
+
+Use this single command to regenerate the snapshot from `FIIs - lista investidor 10 - Página1.csv`:
+
+```bash
+cd /Users/silvagpe/projetos/taller/ai_training/labs/lab05-multi-agent/python \
+  && source .venv/bin/activate \
+  && python scripts/update_fii_snapshot_from_csv.py
+```
+
+Script location: `scripts/update_fii_snapshot_from_csv.py`
+Output file: `data/snapshots/fii_snapshot.json`
+
 ## 📡 API Endpoints
 
 ### `POST /analyze` — Analyze Portfolio
@@ -306,3 +319,25 @@ For questions or architecture suggestions, consult [project.md](../../project.md
 ---
 
 **Version 1.0** | Lab 5 — Capstone Project | March 2026
+
+
+
+## Test
+
+```bash
+curl -X POST "http://127.0.0.1:8000/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "test_client_001",
+    "current_assets": [
+      {
+        "ticker": "KNCR11",
+        "quantity": 10,
+        "current_price": 9.66
+      }
+    ],
+    "total_patrimony_brl": 100000,
+    "monthly_contribution_brl": 1000,
+    "investment_horizon_months": 60
+  }'
+```
