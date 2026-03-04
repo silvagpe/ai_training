@@ -1,13 +1,13 @@
 """Portfolio recommendation logic."""
 from typing import List, Dict
-from ..schemas import (
+from schemas import (
     FII,
     PortfolioAsset,
     AssetAnalysis,
     PortfolioRecommendation,
     RecommendationAction,
 )
-from ..data.providers.fii_snapshot_provider import (
+from data.providers.fii_snapshot_provider import (
     FIISnapshotProvider,
     RecommendedPortfolioProvider,
 )

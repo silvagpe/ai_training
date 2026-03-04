@@ -1,7 +1,7 @@
 """Diversification rules and suggestions."""
 from typing import List, Dict, Tuple
-from ..schemas import FII
-from ..config.settings import (
+from schemas import FII
+from config.settings import (
     PATRIMONIO_TIERS,
     FUND_TYPES,
     PREFERENCE_TYPE,

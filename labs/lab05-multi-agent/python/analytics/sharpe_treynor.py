@@ -2,7 +2,7 @@
 import math
 import statistics
 from typing import List, Optional
-from ..config.settings import SHARPE_RISK_FREE_RATE
+from config.settings import SHARPE_RISK_FREE_RATE
 
 
 class RiskMetrics:

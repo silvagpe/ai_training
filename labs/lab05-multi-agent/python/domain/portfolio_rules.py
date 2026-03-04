@@ -1,8 +1,8 @@
 """Portfolio eligibility and validation rules."""
 from datetime import datetime, timedelta
 from typing import List, Dict
-from ..schemas import FII, AssetEligibility
-from ..config.settings import (
+from schemas import FII, AssetEligibility
+from config.settings import (
     MIN_YEARS_EXISTENCE,
     MIN_DAILY_VOLUME_BRL,
     MIN_NET_EQUITY_BRL,

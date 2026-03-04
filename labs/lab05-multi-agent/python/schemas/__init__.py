@@ -7,6 +7,7 @@ from .analysis import (
     PortfolioRecommendation,
     RecommendationAction,
     AnalysisOutput,
+    AnalyticsMetrics,
 )
 from .recommendation import RecommendedFII, RecommendedPortfolio
 
@@ -20,6 +21,7 @@ __all__ = [
     "PortfolioRecommendation",
     "RecommendationAction",
     "AnalysisOutput",
+    "AnalyticsMetrics",
     "RecommendedFII",
     "RecommendedPortfolio",
 ]

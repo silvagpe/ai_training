@@ -1,20 +1,20 @@
 """Portfolio evaluation service."""
 from typing import List, Dict
-from ..schemas import (
+from schemas import (
     PortfolioInput,
     PortfolioAsset,
     AssetEligibility,
     AnalysisOutput,
     AnalyticsMetrics,
 )
-from ..domain.portfolio_rules import PortfolioRules
-from ..domain.diversification import DiversificationRules
-from ..domain.recommendation import RecommendationEngine
-from ..data.providers.fii_snapshot_provider import FIISnapshotProvider
-from ..analytics.projection import PortfolioProjection
-from ..analytics.sharpe_treynor import RiskMetrics
-from ..analytics.benchmark_ifix import BenchmarkComparison
-from ..config.settings import SHARPE_RISK_FREE_RATE
+from domain.portfolio_rules import PortfolioRules
+from domain.diversification import DiversificationRules
+from domain.recommendation import RecommendationEngine
+from data.providers.fii_snapshot_provider import FIISnapshotProvider
+from analytics.projection import PortfolioProjection
+from analytics.sharpe_treynor import RiskMetrics
+from analytics.benchmark_ifix import BenchmarkComparison
+from config.settings import SHARPE_RISK_FREE_RATE
 
 
 class PortfolioService:

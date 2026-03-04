@@ -1,7 +1,7 @@
 """Portfolio vs benchmark comparison."""
 import statistics
 from typing import Dict, List, Optional
-from ..data.providers.fii_snapshot_provider import IFIXProvider
+from data.providers.fii_snapshot_provider import IFIXProvider
 
 
 class BenchmarkComparison:

@@ -4,9 +4,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+from dotenv import load_dotenv
 from supervisor import SupervisorAgent
 from llm_client import get_llm_client
 from schemas import PortfolioInput, PortfolioAsset, AnalysisOutput
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(
     title="FII Portfolio Analyzer",
