@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-slate-950">
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">
+        {{ title() }}
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Brazilian Real Estate Investment Fund Portfolio Analysis
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="py-8">
+    <!-- Portfolio Form -->
+    <app-portfolio-form (submitPortfolio)="onSubmitPortfolio($event)" />
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="max-w-4xl mx-auto p-6 mt-8">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-slate-700 border-t-indigo-500 mb-4"></div>
+        <p class="text-xl text-slate-300 font-semibold">Analyzing your portfolio...</p>
+        <p class="text-slate-500 mt-2">This may take a few moments as our AI agents evaluate your investments.</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage() && !isLoading()" class="max-w-4xl mx-auto p-6 mt-8">
+      <div class="bg-rose-900/20 border border-rose-800 rounded-2xl p-8 text-center">
+        <span class="text-5xl mb-4 block">⚠️</span>
+        <p class="text-xl text-rose-400 font-semibold mb-2">Analysis Error</p>
+        <p class="text-slate-300">{{ errorMessage() }}</p>
+        <p class="text-slate-500 text-sm mt-4">Please check your input and try again. Make sure the backend server is running.</p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="analysisResult() && !isLoading()" id="results" class="mt-12 space-y-8">
+      <!-- Portfolio Actions -->
+      <app-portfolio-actions 
+        [portfolioAnalysis]="analysisResult()!.analysis.portfolio_analysis" />
+
+      <!-- Analytics & Diversification -->
+      <app-analytics-metrics 
+        [analytics]="analysisResult()!.analysis.analytics"
+        [diversification]="analysisResult()!.analysis.diversification_summary"
+        [recommendedAllocation]="analysisResult()!.analysis.recommended_allocation" />
+
+      <!-- Reports -->
+      <app-reports 
+        [executiveSummary]="analysisResult()!.executive_summary"
+        [detailedReport]="analysisResult()!.detailed_report"
+        [reviewFeedback]="analysisResult()!.review_feedback" />
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-900/50 mt-16">
+    <div class="max-w-7xl mx-auto px-6 py-8 text-center text-slate-500 text-sm">
+      <p>© 2026 FII Portfolio Analyzer - Powered by Multi-Agent AI System</p>
+      <p class="mt-2">Educational project for AI-driven portfolio analysis</p>
+    </div>
+  </footer>
+</div>
