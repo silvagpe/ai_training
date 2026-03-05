@@ -10,7 +10,7 @@ Frontend location: /mnt/dados/projetos/taller/ai_training/labs/lab05-multi-agent
 Backend location: /mnt/dados/projetos/taller/ai_training/labs/lab05-multi-agent/python
 
 
-Payload in
+Input Payload
 ```json
 {     
 	"client_id": "test_client_001",     
@@ -26,7 +26,7 @@ Payload in
 }
 ```
 
-Payload out
+Output Payload / Analysis Result
 ```json
 {
 	"analysis": {
