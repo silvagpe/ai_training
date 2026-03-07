@@ -11,6 +11,7 @@ from data.providers.fii_snapshot_provider import (
     FIISnapshotProvider,
     RecommendedPortfolioProvider,
 )
+from domain.diversification import DiversificationRules
 
 
 class RecommendationEngine:
@@ -21,15 +22,22 @@ class RecommendationEngine:
         self.portfolio_provider = RecommendedPortfolioProvider()
 
     def compare_portfolios(
-        self, client_portfolio: List[PortfolioAsset]
+        self, client_portfolio: List[PortfolioAsset], total_patrimony_brl: float
     ) -> PortfolioRecommendation:
         """Compare client's portfolio with recommendations.
         
         Returns actions: HOLD, BUY, SELL.
+        Respects patrimonio tier limits for BUY recommendations.
+        
+        Logic: max_buy_count = max_count - len(hold_assets)
+        This ensures final portfolio = hold + buy = desired count
         """
         # Load snapshots
         fii_snapshot = self.fii_provider.load()
         recommended = self.portfolio_provider.load()
+
+        # Get tier limits based on patrimonio
+        min_count, max_count = DiversificationRules.suggest_fii_count(total_patrimony_brl)
 
         # Create FII lookup
         fii_lookup = {fii.ticker: fii for fii in fii_snapshot.fiis}
@@ -41,7 +49,7 @@ class RecommendationEngine:
         buy_assets = []
         sell_assets = []
 
-        # Analyze client's current holdings
+        # FIRST PASS: Analyze client's current holdings
         for asset in client_portfolio:
             if asset.ticker not in fii_lookup:
                 # Unknown FII - suggest selling
@@ -96,27 +104,47 @@ class RecommendationEngine:
                     )
                 )
 
-        # Identify buy opportunities (recommended but not in client's portfolio)
+        # SECOND PASS: Identify buy opportunities
+        # After selling, client will have len(hold_assets) FIIs
+        # Need to buy: max_count - len(hold_assets) to reach tier limit
+        max_buy_count = max(0, max_count - len(hold_assets))
+        
         client_tickers = {asset.ticker for asset in client_portfolio}
+        buy_count = 0
+        buy_recommendations = []  # Store for weight normalization
 
         for rec in recommended.recommendations:
+            if buy_count >= max_buy_count:
+                # Reached the tier limit based on final portfolio size
+                break
+                
             if rec.ticker not in client_tickers:
                 fii = fii_lookup[rec.ticker]
-                buy_assets.append(
-                    AssetAnalysis(
-                        ticker=fii.ticker,
-                        name=fii.name,
-                        fund_type=fii.fund_type,
-                        segment=fii.segment,
-                        action=RecommendationAction.BUY,
-                        current_price=fii.price_to_book,  # Approximation
-                        dy_pct=fii.dy_12m_pct,
-                        price_to_book=fii.price_to_book,
-                        reason=rec.rationale or "Recommended by portfolio strategy.",
-                        source="recommended",
-                        weight_recommended_pct=rec.recommended_weight_pct,
-                    )
+                buy_recommendations.append((fii, rec))
+                buy_count += 1
+
+        # Normalize weights: sum of selected buy FIIs weights
+        total_selected_weight = sum(rec.recommended_weight_pct for _, rec in buy_recommendations)
+        
+        for fii, rec in buy_recommendations:
+            # Renormalize weight so buy_assets sum to 100%
+            normalized_weight = (rec.recommended_weight_pct / total_selected_weight * 100) if total_selected_weight > 0 else 0
+            
+            buy_assets.append(
+                AssetAnalysis(
+                    ticker=fii.ticker,
+                    name=fii.name,
+                    fund_type=fii.fund_type,
+                    segment=fii.segment,
+                    action=RecommendationAction.BUY,
+                    current_price=fii.price_to_book,  # Approximation
+                    dy_pct=fii.dy_12m_pct,
+                    price_to_book=fii.price_to_book,
+                    reason=rec.rationale or "Recommended by portfolio strategy.",
+                    source="recommended",
+                    weight_recommended_pct=normalized_weight,
                 )
+            )
 
         return PortfolioRecommendation(
             hold_assets=hold_assets,

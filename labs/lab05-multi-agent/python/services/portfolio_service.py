@@ -23,6 +23,9 @@ class PortfolioService:
     def __init__(self):
         self.fii_provider = FIISnapshotProvider()
         self.recommendation_engine = RecommendationEngine()
+        # Add portfolio provider for recommended FIIs
+        from data.providers.fii_snapshot_provider import RecommendedPortfolioProvider
+        self.portfolio_provider = RecommendedPortfolioProvider()
 
     def evaluate_portfolio(self, portfolio: PortfolioInput) -> AnalysisOutput:
         """Complete portfolio evaluation workflow.
@@ -31,21 +34,37 @@ class PortfolioService:
         """
         # Load available FIIs
         fii_snapshot = self.fii_provider.load()
+        
+        # Load recommended portfolio
+        recommended_portfolio = self.portfolio_provider.load()
 
         # 1. Check eligibility of all available FIIs
         eligible_fiis = PortfolioRules.get_eligible_fiis(fii_snapshot.fiis)
 
-        # 2. Suggest portfolio based on patrimonio
+        # 2. Suggest portfolio based on patrimonio and recommended portfolio
         min_count, max_count = DiversificationRules.suggest_fii_count(
             portfolio.total_patrimony_brl
         )
+        
+        # Extract FIIs from recommended portfolio (filtered from eligible)
+        fii_lookup = {fii.ticker: fii for fii in eligible_fiis}
+        recommended_fiis = [
+            fii_lookup[rec.ticker] 
+            for rec in recommended_portfolio.recommendations 
+            if rec.ticker in fii_lookup
+        ]
+        
+        # Use recommended portfolio, respecting tier limits
         suggested_fiis = DiversificationRules.suggest_balanced_portfolio(
-            eligible_fiis, target_count=min_count
+            eligible_fiis, 
+            target_count=min_count,
+            recommended_fiis=recommended_fiis
         )
 
         # 3. Compare client's portfolio with recommendations
         portfolio_recommendation = self.recommendation_engine.compare_portfolios(
-            portfolio.current_assets
+            portfolio.current_assets,
+            total_patrimony_brl=portfolio.total_patrimony_brl
         )
 
         # 4. Build recommended allocation

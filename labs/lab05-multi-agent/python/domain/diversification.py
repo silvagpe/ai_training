@@ -63,47 +63,32 @@ class DiversificationRules:
 
     @staticmethod
     def suggest_balanced_portfolio(
-        eligible_fiis: List[FII], target_count: int = 5
+        eligible_fiis: List[FII], 
+        target_count: int = 5,
+        recommended_fiis: List[FII] = None
     ) -> List[FII]:
-        """Suggest balanced portfolio with diversification rules.
+        """Suggest balanced portfolio using recommended portfolio.
         
-        Prefers Tijolo type, avoids concentration.
+        If recommended_fiis provided, uses those (respecting target_count limit).
+        Otherwise, returns eligible_fiis truncated to target_count.
+        
+        Args:
+            eligible_fiis: List of eligible FIIs
+            target_count: Maximum number of FIIs to include
+            recommended_fiis: Pre-selected recommended FIIs to use
+            
+        Returns:
+            Selected FIIs (up to target_count)
         """
+        # Use recommended portfolio if provided
+        if recommended_fiis:
+            return recommended_fiis[:target_count]
+        
+        # Fallback: use eligible FIIs up to target_count
         if not eligible_fiis:
             return []
-
-        # Sort by type preference and dividend yield
-        def sort_key(fii):
-            type_preference = 0 if fii.fund_type == PREFERENCE_TYPE else 1
-            return (type_preference, -fii.dy_12m_pct)  # negative for descending DY
-
-        sorted_fiis = sorted(eligible_fiis, key=sort_key)
-
-        # Select target_count FIIs
-        selected = sorted_fiis[:target_count]
-
-        # Check type diversity
-        distribution = DiversificationRules.get_type_distribution(selected)
-
-        # Ensure no single type > MAX_SINGLE_TYPE_PCT
-        for fund_type in distribution:
-            if distribution[fund_type] > MAX_SINGLE_TYPE_PCT:
-                # Rebalance: replace lowest DY in that type with highest DY from other type
-                type_fiis = [f for f in selected if f.fund_type == fund_type]
-                worst_fii = min(type_fiis, key=lambda f: f.dy_12m_pct)
-
-                other_fiis = [f for f in sorted_fiis if f not in selected]
-                best_other = None
-                for fii in other_fiis:
-                    if fii.fund_type != fund_type:
-                        best_other = fii
-                        break
-
-                if best_other:
-                    selected.remove(worst_fii)
-                    selected.append(best_other)
-
-        return selected
+        
+        return eligible_fiis[:target_count]
 
     @staticmethod
     def allocate_weights(fiis: List[FII]) -> Dict[str, float]:
