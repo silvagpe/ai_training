@@ -97,7 +97,7 @@ export default function QueryPage() {
               </p>
               <p className="text-sm text-gray-500">
                 Haven't indexed any files yet?{" "}
-                <Link href="/index" className="text-rag-cyan hover:underline">
+                <Link href="/index-files" className="text-rag-cyan hover:underline">
                   Go to Index Files
                 </Link>
               </p>

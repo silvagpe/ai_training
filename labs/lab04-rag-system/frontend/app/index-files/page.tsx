@@ -13,7 +13,7 @@ import { Loader2, Upload, X, CheckCircle2, AlertCircle } from "lucide-react";
 
 const MAX_FILE_SIZE = 100 * 1024; // 100KB
 
-export default function IndexPage() {
+export default function IndexFilesPage() {
   const [files, setFiles] = useState<FileInput[]>([
     { id: "1", filename: "", content: "" },
     { id: "2", filename: "", content: "" },
@@ -256,4 +256,3 @@ export default function IndexPage() {
     </div>
   );
 }
-

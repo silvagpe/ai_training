@@ -22,10 +22,10 @@ export default function Navbar() {
               Query
             </Button>
           </Link>
-          <Link href="/index">
+          <Link href="/index-files">
             <Button
-              variant={pathname === "/index" ? "default" : "ghost"}
-              className={pathname === "/index" ? "bg-rag-cyan text-white hover:bg-rag-cyan/90" : ""}
+              variant={pathname === "/index-files" ? "default" : "ghost"}
+              className={pathname === "/index-files" ? "bg-rag-cyan text-white hover:bg-rag-cyan/90" : ""}
             >
               Index Files
             </Button>
