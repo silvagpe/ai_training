@@ -6,12 +6,13 @@ The API address is https://migration-workflow-production.up.railway.app/migrate
 
 The physical address of the project will be: /mnt/dados/projetos/taller/ai_training/labs/lab03-migration-workflow/frontend
 
-Color scheme: #012340
-#3C36D9
-#343BBF
-#142273
-#011140
-#43D9CA
+Color scheme: 
+#049DBF
+#8C4F04
+#D99036
+#8C6542
+#0D0D0D
+
 
 All text on the page must be in American English.
 
