@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: fii-portfolio-analyzer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: LLM_PROVIDER
+        value: google
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RATE_LIMIT_RPM
+        value: 60
+      - key: RATE_LIMIT_TPM
+        value: 100000
+      - key: EMBEDDING_PROVIDER
+        value: local
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      # These should be added as secret environment variables in Render Dashboard:
+      # - GOOGLE_API_KEY (required)
+      # - GROQ_API_KEY (optional)
+      # - ANTHROPIC_API_KEY (optional)
+      # - OPENAI_API_KEY (optional)
