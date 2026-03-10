@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-900: #012340;
+  --brand-500: #3c36d9;
+  --brand-600: #343bbf;
+  --brand-700: #142273;
+  --brand-950: #011140;
+  --brand-accent: #43d9ca;
+  --ink-strong: #e7f7ff;
+  --ink-soft: #a6c4d9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans), "Segoe UI", sans-serif;
+  color: var(--ink-strong);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(67, 217, 202, 0.18), transparent 35%),
+    radial-gradient(circle at 90% 15%, rgba(60, 54, 217, 0.2), transparent 30%),
+    linear-gradient(160deg, var(--brand-950) 8%, var(--brand-900) 48%, var(--brand-700) 100%);
+}
+
+textarea,
+pre,
+code,
+input {
+  font-family: var(--font-mono), "Courier New", monospace;
+}

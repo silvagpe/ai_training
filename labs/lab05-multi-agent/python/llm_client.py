@@ -1,7 +1,7 @@
-"""LLM Client abstraction."""
+"""LLM client abstraction for Code Analyzer."""
 import os
-from typing import List, Dict, Optional
 from abc import ABC, abstractmethod
+from typing import List, Dict
 
 
 class LLMClient(ABC):
@@ -9,7 +9,7 @@ class LLMClient(ABC):
 
     @abstractmethod
     def chat(self, messages: List[Dict[str, str]]) -> str:
-        """Send messages and get a response."""
+        """Send messages and return response content."""
         pass
 
 
@@ -22,14 +22,13 @@ class AnthropicClient(LLMClient):
         self.model = model
 
     def chat(self, messages: List[Dict[str, str]]) -> str:
-        # Extract system message
         system = None
         filtered = []
-        for msg in messages:
-            if msg["role"] == "system":
-                system = msg["content"]
+        for m in messages:
+            if m["role"] == "system":
+                system = m["content"]
             else:
-                filtered.append(msg)
+                filtered.append(m)
 
         response = self.client.messages.create(
             model=self.model,
@@ -37,12 +36,11 @@ class AnthropicClient(LLMClient):
             system=system,
             messages=filtered
         )
-
         return response.content[0].text
 
 
 class OpenAIClient(LLMClient):
-    """OpenAI GPT client."""
+    """OpenAI client."""
 
     def __init__(self, model: str = "gpt-4o"):
         from openai import OpenAI
@@ -57,11 +55,45 @@ class OpenAIClient(LLMClient):
         return response.choices[0].message.content
 
 
+class GoogleClient(LLMClient):
+    """Google Generative AI client (Gemini)."""
+
+    def __init__(self, model: str = "gemini-3-flash-preview"):
+        import google.generativeai as genai
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable is required")
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel(model)
+
+    def chat(self, messages: List[Dict[str, str]]) -> str:
+        # Extract system and build prompt
+        system = ""
+        history = []
+        user_message = ""
+
+        for m in messages:
+            if m["role"] == "system":
+                system = m["content"]
+            elif m["role"] == "user":
+                user_message = m["content"]
+            elif m["role"] == "assistant":
+                history.append({"role": "model", "parts": [m["content"]]})
+
+        prompt = f"{system}\n\n{user_message}" if system else user_message
+        response = self.model.generate_content(prompt)
+        return response.text
+
+
 def get_llm_client(provider: str = "anthropic") -> LLMClient:
-    """Get an LLM client by provider name."""
-    if provider == "anthropic":
-        return AnthropicClient()
-    elif provider == "openai":
-        return OpenAIClient()
-    else:
-        raise ValueError(f"Unknown provider: {provider}")
+    """Factory function to create LLM client."""
+    providers = {
+        "anthropic": AnthropicClient,
+        "openai": OpenAIClient,
+        "google": GoogleClient,
+    }
+
+    if provider not in providers:
+        raise ValueError(f"Unknown provider: {provider}. Available: {list(providers.keys())}")
+
+    return providers[provider]()

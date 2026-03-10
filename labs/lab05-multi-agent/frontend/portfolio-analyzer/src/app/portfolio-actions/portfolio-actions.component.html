@@ -1,0 +1,160 @@
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-2xl font-bold text-slate-100 mb-6">Portfolio Recommendations</h2>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- BUY Assets -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">{{ getActionIcon('BUY') }}</span>
+        <div>
+          <h3 class="text-xl font-semibold text-emerald-400">Buy</h3>
+          <p class="text-sm text-slate-400">{{ portfolioAnalysis.buy_assets.length }} assets</p>
+        </div>
+      </div>
+      
+      <div class="space-y-3">
+        <div *ngFor="let asset of portfolioAnalysis.buy_assets" 
+             class="bg-slate-950/50 border border-emerald-900/30 rounded-lg p-4 hover:border-emerald-700/50 transition">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-semibold text-slate-100">{{ asset.ticker }}</h4>
+              <p class="text-xs text-slate-400">{{ asset.name }}</p>
+            </div>
+            <span *ngIf="asset.weight_recommended_pct" 
+                  class="px-2 py-1 bg-emerald-900/30 text-emerald-400 text-xs font-medium rounded">
+              {{ asset.weight_recommended_pct.toFixed(1) }}%
+            </span>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div>
+              <span class="text-slate-500">Type:</span>
+              <span class="text-slate-300 ml-1">{{ asset.fund_type }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">DY:</span>
+              <span class="text-slate-300 ml-1">{{ asset.dy_pct.toFixed(2) }}%</span>
+            </div>
+            <div>
+              <span class="text-slate-500">Price:</span>
+              <span class="text-slate-300 ml-1">R$ {{ asset.current_price.toFixed(2) }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">P/VP:</span>
+              <span class="text-slate-300 ml-1">{{ asset.price_to_book.toFixed(2) }}</span>
+            </div>
+          </div>
+          
+          <p class="text-xs text-slate-400 italic">{{ asset.reason }}</p>
+        </div>
+        
+        <p *ngIf="portfolioAnalysis.buy_assets.length === 0" 
+           class="text-center text-slate-500 py-8">
+          No buy recommendations
+        </p>
+      </div>
+    </div>
+
+    <!-- HOLD Assets -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">{{ getActionIcon('HOLD') }}</span>
+        <div>
+          <h3 class="text-xl font-semibold text-amber-400">Hold</h3>
+          <p class="text-sm text-slate-400">{{ portfolioAnalysis.hold_assets.length }} assets</p>
+        </div>
+      </div>
+      
+      <div class="space-y-3">
+        <div *ngFor="let asset of portfolioAnalysis.hold_assets" 
+             class="bg-slate-950/50 border border-amber-900/30 rounded-lg p-4 hover:border-amber-700/50 transition">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-semibold text-slate-100">{{ asset.ticker }}</h4>
+              <p class="text-xs text-slate-400">{{ asset.name }}</p>
+            </div>
+            <span *ngIf="asset.weight_recommended_pct" 
+                  class="px-2 py-1 bg-amber-900/30 text-amber-400 text-xs font-medium rounded">
+              {{ asset.weight_recommended_pct.toFixed(1) }}%
+            </span>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div>
+              <span class="text-slate-500">Type:</span>
+              <span class="text-slate-300 ml-1">{{ asset.fund_type }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">DY:</span>
+              <span class="text-slate-300 ml-1">{{ asset.dy_pct.toFixed(2) }}%</span>
+            </div>
+            <div>
+              <span class="text-slate-500">Price:</span>
+              <span class="text-slate-300 ml-1">R$ {{ asset.current_price.toFixed(2) }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">P/VP:</span>
+              <span class="text-slate-300 ml-1">{{ asset.price_to_book.toFixed(2) }}</span>
+            </div>
+          </div>
+          
+          <p class="text-xs text-slate-400 italic">{{ asset.reason }}</p>
+        </div>
+        
+        <p *ngIf="portfolioAnalysis.hold_assets.length === 0" 
+           class="text-center text-slate-500 py-8">
+          No hold recommendations
+        </p>
+      </div>
+    </div>
+
+    <!-- SELL Assets -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">{{ getActionIcon('SELL') }}</span>
+        <div>
+          <h3 class="text-xl font-semibold text-rose-400">Sell</h3>
+          <p class="text-sm text-slate-400">{{ portfolioAnalysis.sell_assets.length }} assets</p>
+        </div>
+      </div>
+      
+      <div class="space-y-3">
+        <div *ngFor="let asset of portfolioAnalysis.sell_assets" 
+             class="bg-slate-950/50 border border-rose-900/30 rounded-lg p-4 hover:border-rose-700/50 transition">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-semibold text-slate-100">{{ asset.ticker }}</h4>
+              <p class="text-xs text-slate-400">{{ asset.name }}</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div>
+              <span class="text-slate-500">Type:</span>
+              <span class="text-slate-300 ml-1">{{ asset.fund_type }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">DY:</span>
+              <span class="text-slate-300 ml-1">{{ asset.dy_pct.toFixed(2) }}%</span>
+            </div>
+            <div>
+              <span class="text-slate-500">Price:</span>
+              <span class="text-slate-300 ml-1">R$ {{ asset.current_price.toFixed(2) }}</span>
+            </div>
+            <div>
+              <span class="text-slate-500">P/VP:</span>
+              <span class="text-slate-300 ml-1">{{ asset.price_to_book.toFixed(2) }}</span>
+            </div>
+          </div>
+          
+          <p class="text-xs text-slate-400 italic">{{ asset.reason }}</p>
+        </div>
+        
+        <p *ngIf="portfolioAnalysis.sell_assets.length === 0" 
+           class="text-center text-slate-500 py-8">
+          No sell recommendations
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
