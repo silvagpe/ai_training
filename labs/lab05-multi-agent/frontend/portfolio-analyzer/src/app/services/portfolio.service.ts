@@ -9,7 +9,7 @@ import { AnalysisResponse } from '../models/analysis.model';
   providedIn: 'root'
 })
 export class PortfolioService {
-  private readonly apiUrl = 'http://localhost:8000';
+  private readonly apiUrl = 'https://ai-training-ob17.onrender.com';
 
   constructor(private http: HttpClient) {}
 
