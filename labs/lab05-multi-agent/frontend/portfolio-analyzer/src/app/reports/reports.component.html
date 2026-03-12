@@ -1,63 +1,63 @@
 <div class="max-w-7xl mx-auto p-6 space-y-6">
   <!-- Executive Summary -->
-  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-    <h2 class="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
+  <div class="theme-card p-6">
+    <h2 class="theme-title text-2xl mb-6 flex items-center gap-2">
       <span>📊</span>
       Executive Summary
     </h2>
-    <div class="prose prose-invert max-w-none">
-      <div class="text-slate-300 leading-relaxed space-y-4" 
+    <div class="max-w-none">
+      <div class="text-red-900 leading-relaxed space-y-4" 
            [innerHTML]="formatMarkdown(executiveSummary)">
       </div>
     </div>
   </div>
 
   <!-- Detailed Report (Collapsible) -->
-  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+  <div class="theme-card p-6">
     <button 
       (click)="toggleDetailedReport()"
-      class="w-full flex justify-between items-center mb-4 hover:text-indigo-400 transition">
-      <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+      class="w-full flex justify-between items-center mb-4 hover:text-brand transition">
+      <h2 class="theme-title text-2xl flex items-center gap-2">
         <span>📄</span>
         Detailed Report
       </h2>
-      <span class="text-slate-400 text-xl">
+      <span class="text-red-700 text-xl">
         {{ showDetailedReport ? '▼' : '▶' }}
       </span>
     </button>
     
-    <div *ngIf="showDetailedReport" class="mt-4 prose prose-invert max-w-none">
-      <div class="text-slate-300 leading-relaxed space-y-4" 
+    <div *ngIf="showDetailedReport" class="mt-4 max-w-none">
+      <div class="text-red-900 leading-relaxed space-y-4" 
            [innerHTML]="formatMarkdown(detailedReport)">
       </div>
     </div>
     
-    <p *ngIf="!showDetailedReport" class="text-slate-500 text-center py-4">
+    <p *ngIf="!showDetailedReport" class="text-red-700 text-center py-4">
       Click to expand detailed report
     </p>
   </div>
 
   <!-- Review Feedback (Collapsible) -->
-  <div class="bg-slate-900/60 border border-amber-900/30 rounded-2xl p-6">
+  <div class="theme-card p-6">
     <button 
       (click)="toggleReviewFeedback()"
-      class="w-full flex justify-between items-center mb-4 hover:text-amber-400 transition">
-      <h2 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+      class="w-full flex justify-between items-center mb-4 hover:text-brand transition">
+      <h2 class="theme-title text-2xl flex items-center gap-2">
         <span>⚠️</span>
         Quality Review Feedback
       </h2>
-      <span class="text-slate-400 text-xl">
+      <span class="text-red-700 text-xl">
         {{ showReviewFeedback ? '▼' : '▶' }}
       </span>
     </button>
     
-    <div *ngIf="showReviewFeedback" class="mt-4 prose prose-invert max-w-none">
-      <div class="text-slate-300 leading-relaxed space-y-4" 
+    <div *ngIf="showReviewFeedback" class="mt-4 max-w-none">
+      <div class="text-red-900 leading-relaxed space-y-4" 
            [innerHTML]="formatMarkdown(reviewFeedback)">
       </div>
     </div>
     
-    <p *ngIf="!showReviewFeedback" class="text-slate-500 text-center py-4">
+    <p *ngIf="!showReviewFeedback" class="text-red-700 text-center py-4">
       Click to expand quality assurance feedback
     </p>
   </div>

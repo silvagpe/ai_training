@@ -1,65 +1,66 @@
 <div class="max-w-7xl mx-auto p-6 space-y-6">
   <!-- Analytics Metrics -->
-  <div *ngIf="analytics" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-    <h2 class="text-2xl font-bold text-slate-100 mb-6">Portfolio Analytics</h2>
+  <div *ngIf="analytics" class="theme-card p-6">
+    <h2 class="theme-title text-2xl mb-6">Portfolio Analytics</h2>
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Sharpe Ratio -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <p class="text-sm text-slate-400 mb-1">Sharpe Ratio</p>
-        <p class="text-3xl font-bold text-indigo-400">{{ formatNumber(analytics.sharpe_ratio) }}</p>
-        <p class="text-xs text-slate-500 mt-1">Risk-adjusted return measure</p>
+      <div class="theme-subcard p-4">
+        <p class="text-sm text-red-700 mb-1">Sharpe Ratio</p>
+        <p class="text-3xl font-bold text-brand">{{ formatNumber(analytics.sharpe_ratio) }}</p>
+        <p class="text-xs text-red-700 mt-1">Risk-adjusted return measure</p>
       </div>
 
       <!-- Treynor Ratio -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <p class="text-sm text-slate-400 mb-1">Treynor Ratio</p>
-        <p class="text-3xl font-bold text-indigo-400">{{ formatNumber(analytics.treynor_ratio) }}</p>
-        <p class="text-xs text-slate-500 mt-1">Return per unit of market risk</p>
+      <div class="theme-subcard p-4">
+        <p class="text-sm text-red-700 mb-1">Treynor Ratio</p>
+        <p class="text-3xl font-bold text-brand">{{ formatNumber(analytics.treynor_ratio) }}</p>
+        <p class="text-xs text-red-700 mt-1">Return per unit of market risk</p>
       </div>
 
       <!-- Volatility -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <p class="text-sm text-slate-400 mb-1">Portfolio Volatility</p>
-        <p class="text-3xl font-bold text-indigo-400">{{ formatNumber(analytics.portfolio_volatility_pct) }}%</p>
-        <p class="text-xs text-slate-500 mt-1">Standard deviation of returns</p>
+      <div class="theme-subcard p-4">
+        <p class="text-sm text-red-700 mb-1">Portfolio Volatility</p>
+        <p class="text-3xl font-bold text-brand">{{ formatNumber(analytics.portfolio_volatility_pct) }}%</p>
+        <p class="text-xs text-red-700 mt-1">Standard deviation of returns</p>
       </div>
 
       <!-- 5-Year Projection -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <p class="text-sm text-slate-400 mb-1">5-Year Projection</p>
-        <p class="text-3xl font-bold text-emerald-400">{{ formatCurrency(analytics.projected_value_5y_brl) }}</p>
-        <p class="text-xs text-slate-500 mt-1">Estimated portfolio value</p>
+      <div class="theme-subcard p-4">
+        <p class="text-sm text-red-700 mb-1">5-Year Projection</p>
+        <p class="text-3xl font-bold text-emerald-600">{{ formatCurrency(analytics.projected_value_5y_brl) }}</p>
+        <p class="text-xs text-red-700 mt-1">Estimated portfolio value</p>
       </div>
 
       <!-- Benchmark Comparison -->
       <div *ngIf="analytics.benchmark_comparison" 
-           class="bg-slate-950/50 border border-slate-800 rounded-lg p-4 md:col-span-2">
-        <p class="text-sm text-slate-400 mb-3">Benchmark Comparison (IFIX)</p>
+           class="theme-subcard p-4 md:col-span-2">
+        <p class="text-sm text-red-700 mb-3">Benchmark Comparison (IFIX)</p>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-xs text-slate-500">Portfolio Return</p>
-            <p class="text-2xl font-bold text-emerald-400">
+            <p class="text-xs text-red-700">Portfolio Return</p>
+            <p class="text-2xl font-bold text-emerald-600">
               {{ formatNumber(analytics.benchmark_comparison.portfolio_total_return_pct) }}%
             </p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Benchmark Return</p>
-            <p class="text-2xl font-bold text-slate-400">
+            <p class="text-xs text-red-700">Benchmark Return</p>
+            <p class="text-2xl font-bold text-red-900">
               {{ formatNumber(analytics.benchmark_comparison.benchmark_total_return_pct) }}%
             </p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Outperformance</p>
+            <p class="text-xs text-red-700">Outperformance</p>
             <p class="text-2xl font-bold" 
-               [class.text-emerald-400]="analytics.benchmark_comparison.outperformance_pct > 0"
-               [class.text-rose-400]="analytics.benchmark_comparison.outperformance_pct < 0">
+               [class.text-emerald-600]="analytics.benchmark_comparison.outperformance_pct > 0"
+               [class.text-rose-600]="analytics.benchmark_comparison.outperformance_pct < 0"
+               [class.text-brand]="analytics.benchmark_comparison.outperformance_pct === 0">
               {{ formatNumber(analytics.benchmark_comparison.outperformance_pct) }}%
             </p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Periods Analyzed</p>
-            <p class="text-2xl font-bold text-slate-300">
+            <p class="text-xs text-red-700">Periods Analyzed</p>
+            <p class="text-2xl font-bold text-red-900">
               {{ analytics.benchmark_comparison.periods_analyzed }}
             </p>
           </div>
@@ -69,21 +70,21 @@
   </div>
 
   <!-- Diversification Summary -->
-  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-    <h2 class="text-2xl font-bold text-slate-100 mb-6">Diversification Analysis</h2>
+  <div class="theme-card p-6">
+    <h2 class="theme-title text-2xl mb-6">Diversification Analysis</h2>
     
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Type Distribution -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">Asset Type Distribution</h3>
+      <div class="theme-subcard p-4">
+        <h3 class="text-lg font-semibold text-red-900 mb-4">Asset Type Distribution</h3>
         <div class="space-y-3">
           <div *ngFor="let entry of getTypeDistributionEntries()" class="space-y-1">
             <div class="flex justify-between text-sm">
-              <span class="text-slate-300 capitalize">{{ entry.key }}</span>
-              <span class="text-slate-400 font-medium">{{ entry.value.toFixed(2) }}%</span>
+              <span class="text-red-900 capitalize">{{ entry.key }}</span>
+              <span class="text-red-700 font-medium">{{ entry.value.toFixed(2) }}%</span>
             </div>
-            <div class="w-full bg-slate-800 rounded-full h-2">
-              <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500"
+            <div class="w-full bg-red-100 rounded-full h-2">
+              <div class="bg-brand h-2 rounded-full transition-all duration-500"
                    [style.width.%]="entry.value"></div>
             </div>
           </div>
@@ -91,25 +92,25 @@
       </div>
 
       <!-- Concentration Metrics -->
-      <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">Concentration Metrics</h3>
+      <div class="theme-subcard p-4">
+        <h3 class="text-lg font-semibold text-red-900 mb-4">Concentration Metrics</h3>
         <div class="space-y-4">
           <div>
-            <p class="text-sm text-slate-400 mb-1">Herfindahl Index</p>
-            <p class="text-2xl font-bold text-indigo-400">{{ diversification.herfindahl_index.toFixed(2) }}</p>
-            <p class="text-xs text-slate-500 mt-1">Lower values indicate better diversification</p>
+            <p class="text-sm text-red-700 mb-1">Herfindahl Index</p>
+            <p class="text-2xl font-bold text-brand">{{ diversification.herfindahl_index.toFixed(2) }}</p>
+            <p class="text-xs text-red-700 mt-1">Lower values indicate better diversification</p>
           </div>
           <div>
-            <p class="text-sm text-slate-400 mb-1">Suggested FII Count</p>
-            <p class="text-2xl font-bold text-indigo-400">{{ diversification.suggested_fii_count }}</p>
+            <p class="text-sm text-red-700 mb-1">Suggested FII Count</p>
+            <p class="text-2xl font-bold text-brand">{{ diversification.suggested_fii_count }}</p>
           </div>
           <div>
-            <p class="text-sm text-slate-400 mb-1">Concentration Level</p>
+            <p class="text-sm text-red-700 mb-1">Concentration Level</p>
             <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold capitalize"
                   [ngClass]="{
-                    'bg-emerald-900/30 text-emerald-400': getConcentrationColor(diversification.concentration_level) === 'emerald',
-                    'bg-amber-900/30 text-amber-400': getConcentrationColor(diversification.concentration_level) === 'amber',
-                    'bg-rose-900/30 text-rose-400': getConcentrationColor(diversification.concentration_level) === 'rose'
+                    'bg-emerald-100 text-emerald-700': getConcentrationColor(diversification.concentration_level) === 'emerald',
+                    'bg-amber-100 text-amber-700': getConcentrationColor(diversification.concentration_level) === 'amber',
+                    'bg-rose-100 text-rose-700': getConcentrationColor(diversification.concentration_level) === 'rose'
                   }">
               {{ diversification.concentration_level }}
             </span>
@@ -120,18 +121,18 @@
   </div>
 
   <!-- Recommended Allocation -->
-  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-    <h2 class="text-2xl font-bold text-slate-100 mb-6">Recommended Allocation</h2>
+  <div class="theme-card p-6">
+    <h2 class="theme-title text-2xl mb-6">Recommended Allocation</h2>
     
-    <div class="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
+    <div class="theme-subcard p-4">
       <div class="space-y-3">
         <div *ngFor="let entry of getRecommendedAllocationEntries()" class="space-y-1">
           <div class="flex justify-between text-sm">
-            <span class="text-slate-300 font-medium">{{ entry.key }}</span>
-            <span class="text-slate-400 font-semibold">{{ entry.value.toFixed(2) }}%</span>
+            <span class="text-red-900 font-medium">{{ entry.key }}</span>
+            <span class="text-red-700 font-semibold">{{ entry.value.toFixed(2) }}%</span>
           </div>
-          <div class="w-full bg-slate-800 rounded-full h-2">
-            <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+          <div class="w-full bg-red-100 rounded-full h-2">
+            <div class="bg-brand h-2 rounded-full transition-all duration-500"
                  [style.width.%]="entry.value"></div>
           </div>
         </div>

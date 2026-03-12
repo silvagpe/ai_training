@@ -10,6 +10,17 @@ Frontend location: /mnt/dados/projetos/taller/ai_training/labs/lab05-multi-agent
 Backend location: /mnt/dados/projetos/taller/ai_training/labs/lab05-multi-agent/python
 
 
+Vamos alterar as cores do projeto
+background color: white
+Para os blocos podemos usar #de3341 mas com uma transparência 90% para ficar bem clarinho
+os textbox podem ser brancos com a borda #de3341
+os botões podem usar o fundo #de3341 com letras brancas
+Os demais elementos use variações de red
+
+
+
+
+
 Input Payload
 ```json
 {     

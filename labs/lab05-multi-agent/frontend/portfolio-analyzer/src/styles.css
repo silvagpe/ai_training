@@ -3,7 +3,70 @@
 @tailwind utilities;
 
 /* Global styles */
+:root {
+  --theme-brand: #de3341;
+  --theme-brand-soft: rgba(222, 51, 65, 0.1);
+  --theme-brand-softer: rgba(222, 51, 65, 0.06);
+  --theme-brand-border: #f3b2b8;
+  --theme-text-primary: #3f0d12;
+  --theme-text-muted: #7b1f27;
+}
+
 body {
-  @apply bg-slate-950 text-slate-200;
+  @apply bg-white text-red-950;
   font-family: system-ui, -apple-system, sans-serif;
+}
+
+@layer components {
+  .theme-card {
+    @apply bg-brand-soft border border-brand-border rounded-2xl shadow-sm;
+  }
+
+  .theme-subcard {
+    @apply bg-white border border-brand-border rounded-lg;
+  }
+
+  .theme-input {
+    @apply w-full rounded-lg border border-brand bg-white px-4 py-3 text-red-950 placeholder-red-400 transition;
+  }
+
+  .theme-input:focus {
+    @apply outline-none border-brand-dark ring-1 ring-brand;
+  }
+
+  .theme-input-sm {
+    @apply w-full rounded border border-brand bg-white px-3 py-2 text-sm text-red-950 placeholder-red-400 transition;
+  }
+
+  .theme-input-sm:focus {
+    @apply outline-none border-brand-dark ring-1 ring-brand;
+  }
+
+  .theme-btn-primary {
+    @apply rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-red-200 disabled:text-red-500;
+  }
+
+  .theme-title {
+    @apply font-bold text-brand;
+  }
+
+  .theme-muted {
+    @apply text-brand-text;
+  }
+
+  .theme-markdown-h1 {
+    @apply text-3xl font-bold text-red-950 mt-10 mb-5;
+  }
+
+  .theme-markdown-h2 {
+    @apply text-2xl font-bold text-red-950 mt-8 mb-4;
+  }
+
+  .theme-markdown-h3 {
+    @apply text-xl font-bold text-red-950 mt-6 mb-3;
+  }
+
+  .theme-markdown-strong {
+    @apply font-semibold text-red-950;
+  }
 }
