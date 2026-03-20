@@ -25,7 +25,7 @@ Return JSON matching this schema:
     {{
       "severity": "critical|high|medium|low",
       "category": "bug|security|performance|style|maintainability",
-      "line": number or null,
+      "line": number or null,  // use null when line is uncertain
       "description": "clear issue description",
       "suggestion": "specific fix suggestion"
     }}
@@ -36,7 +36,13 @@ Return JSON matching this schema:
     "complexity": "low|medium|high",
     "maintainability": "poor|fair|good|excellent"
   }}
-}}"""
+}}
+
+Line number rules:
+- Use 1-based line numbers from the provided snippet.
+- Only set "line" when confidence is high.
+- If unsure, set "line" to null instead of guessing.
+- Keep suggestions concise so they can be used as inline PR comments."""
 
 SECURITY_FOCUS_PROMPT = """Focus specifically on security vulnerabilities:
 - SQL injection

@@ -4,10 +4,11 @@ import hmac
 import json
 import logging
 import os
+import re
 import time
 import uuid
 from collections import defaultdict, deque
-from typing import Deque, Dict, List, Optional
+from typing import Deque, Dict, List, Optional, Set, Tuple
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -15,7 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
-from analyzer import AnalysisResult, CodeAnalyzer
+from analyzer import AnalysisResult, CodeAnalyzer, Issue
+from github_client import GitHubAPIError, GitHubClient
 from llm_client import get_llm_client
 
 # Load environment variables
@@ -33,6 +35,23 @@ SUPPORTED_PR_ACTIONS = {"opened", "reopened", "synchronize", "ready_for_review",
 MAX_CODE_LENGTH = int(os.getenv("MAX_CODE_LENGTH", "30000"))
 MAX_BATCH_FILES = int(os.getenv("MAX_BATCH_FILES", "20"))
 MAX_BATCH_TOTAL_LENGTH = int(os.getenv("MAX_BATCH_TOTAL_LENGTH", "120000"))
+MAX_FILES_PER_PR_REVIEW = int(os.getenv("MAX_FILES_PER_PR_REVIEW", "20"))
+MAX_FILE_LENGTH_FOR_PR_REVIEW = int(os.getenv("MAX_FILE_LENGTH_FOR_PR_REVIEW", "30000"))
+MAX_INLINE_COMMENTS = int(os.getenv("MAX_INLINE_COMMENTS", "30"))
+
+PR_INLINE_SEVERITIES = {"critical", "high"}
+GITHUB_API_URL = os.getenv("GITHUB_API_URL", "https://api.github.com")
+
+LANGUAGE_BY_EXTENSION = {
+    ".py": "python",
+    ".js": "javascript",
+    ".jsx": "javascript",
+    ".ts": "typescript",
+    ".tsx": "typescript",
+    ".java": "java",
+    ".go": "go",
+    ".rs": "rust",
+}
 
 
 class SlidingWindowRateLimiter:
@@ -268,6 +287,184 @@ def _check_review_rate_limit(identity: str) -> None:
         raise HTTPException(status_code=429, detail="Rate limit exceeded for review endpoint")
 
 
+def _github_token() -> str:
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        raise HTTPException(status_code=500, detail="Server missing GITHUB_TOKEN configuration")
+    return token
+
+
+def _infer_language_from_path(path: str) -> Optional[str]:
+    lowered = path.lower()
+    for extension, language in LANGUAGE_BY_EXTENSION.items():
+        if lowered.endswith(extension):
+            return language
+    return None
+
+
+def _extract_added_lines_from_patch(patch: str) -> Set[int]:
+    added_lines: Set[int] = set()
+    current_new_line: Optional[int] = None
+
+    for raw_line in patch.splitlines():
+        if raw_line.startswith("@@"):
+            match = re.search(r"\+(\d+)(?:,(\d+))?", raw_line)
+            if match:
+                current_new_line = int(match.group(1))
+            continue
+
+        if current_new_line is None:
+            continue
+
+        if raw_line.startswith("+") and not raw_line.startswith("+++"):
+            added_lines.add(current_new_line)
+            current_new_line += 1
+        elif raw_line.startswith("-") and not raw_line.startswith("---"):
+            continue
+        else:
+            current_new_line += 1
+
+    return added_lines
+
+
+def _format_inline_comment(issue: Issue) -> str:
+    severity = issue.severity.upper()
+    category = issue.category
+    return (
+        f"[{severity}/{category}] {issue.description}\n\n"
+        f"Suggestion: {issue.suggestion}"
+    )
+
+
+def _build_general_review_summary(
+    repository: str,
+    pr_number: int,
+    files_reviewed: int,
+    total_issues: int,
+    inline_count: int,
+    fallback_items: List[Tuple[str, Issue]],
+) -> str:
+    lines = [
+        "Automated AI review completed.",
+        f"Repository: {repository}",
+        f"PR: #{pr_number}",
+        f"Files reviewed: {files_reviewed}",
+        f"Issues found: {total_issues}",
+        f"Inline comments posted: {inline_count}",
+    ]
+
+    if fallback_items:
+        lines.append("")
+        lines.append("Additional findings (not posted inline):")
+        for path, issue in fallback_items[:12]:
+            lines.append(f"- {path}: [{issue.severity}/{issue.category}] {issue.description}")
+
+    return "\n".join(lines)
+
+
+def _run_pull_request_review(payload: Dict[str, object]) -> Dict[str, object]:
+    repository_obj = payload.get("repository")
+    pull_request_obj = payload.get("pull_request")
+
+    repository = repository_obj.get("full_name") if isinstance(repository_obj, dict) else None
+    pr_number = pull_request_obj.get("number") if isinstance(pull_request_obj, dict) else None
+    if not repository or not isinstance(repository, str):
+        raise HTTPException(status_code=400, detail="Missing repository full_name in payload")
+    if not pr_number or not isinstance(pr_number, int):
+        raise HTTPException(status_code=400, detail="Missing pull request number in payload")
+
+    github = GitHubClient(token=_github_token(), api_url=GITHUB_API_URL)
+    pr_files = github.list_pull_request_files(repository, pr_number)
+
+    comments: List[Dict[str, object]] = []
+    fallback_items: List[Tuple[str, Issue]] = []
+    files_reviewed = 0
+    total_issues = 0
+
+    for file_info in pr_files[:MAX_FILES_PER_PR_REVIEW]:
+        status = file_info.get("status")
+        path = file_info.get("filename")
+        if not isinstance(path, str) or status == "removed":
+            continue
+
+        language = _infer_language_from_path(path)
+        if not language:
+            continue
+
+        raw_url = file_info.get("raw_url")
+        patch = file_info.get("patch")
+        if not isinstance(raw_url, str):
+            continue
+
+        try:
+            code = github.download_raw_file(raw_url)
+        except GitHubAPIError as exc:
+            logger.warning("Failed to download file %s: %s", path, exc)
+            continue
+
+        if not code or len(code) > MAX_FILE_LENGTH_FOR_PR_REVIEW:
+            continue
+
+        try:
+            analysis = analyzer.analyze(code, language)
+        except (RuntimeError, ValueError) as exc:
+            logger.warning("Analyzer failed for %s: %s", path, exc)
+            continue
+
+        files_reviewed += 1
+        total_issues += len(analysis.issues)
+        added_lines = _extract_added_lines_from_patch(patch) if isinstance(patch, str) else set()
+
+        for issue in analysis.issues:
+            if issue.line and issue.line > 0 and issue.severity in PR_INLINE_SEVERITIES and issue.line in added_lines:
+                if len(comments) < MAX_INLINE_COMMENTS:
+                    comments.append(
+                        {
+                            "path": path,
+                            "line": issue.line,
+                            "side": "RIGHT",
+                            "body": _format_inline_comment(issue),
+                        }
+                    )
+                else:
+                    fallback_items.append((path, issue))
+            else:
+                fallback_items.append((path, issue))
+
+    if files_reviewed == 0:
+        return {
+            "status": "ignored",
+            "reason": "no_eligible_files",
+            "repository": repository,
+            "pull_request": pr_number,
+        }
+
+    summary = _build_general_review_summary(
+        repository=repository,
+        pr_number=pr_number,
+        files_reviewed=files_reviewed,
+        total_issues=total_issues,
+        inline_count=len(comments),
+        fallback_items=fallback_items,
+    )
+
+    github.create_pull_request_review(
+        repository=repository,
+        pr_number=pr_number,
+        body=summary,
+        comments=comments,
+    )
+
+    return {
+        "status": "review_posted",
+        "repository": repository,
+        "pull_request": pr_number,
+        "files_reviewed": files_reviewed,
+        "issues_found": total_issues,
+        "inline_comments": len(comments),
+    }
+
+
 @app.post("/review", response_model=AnalysisResult)
 async def review_code(request: ReviewRequest, raw_request: Request):
     """Review one code snippet and return structured feedback."""
@@ -366,6 +563,11 @@ async def github_webhook(request: Request):
         delivery_id,
     )
 
+    try:
+        review_result = _run_pull_request_review(payload)
+    except GitHubAPIError as exc:
+        raise HTTPException(status_code=503, detail=f"GitHub API error: {exc}") from exc
+
     return {
         "status": "accepted",
         "event": event,
@@ -373,6 +575,7 @@ async def github_webhook(request: Request):
         "repository": repository,
         "pull_request": pr_number,
         "delivery_id": delivery_id,
+        "review": review_result,
     }
 
 
