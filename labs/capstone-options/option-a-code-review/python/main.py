@@ -10,7 +10,7 @@ from collections import defaultdict, deque
 from typing import Deque, Dict, List, Optional
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
@@ -236,16 +236,6 @@ async def unexpected_exception_handler(request: Request, exc: Exception):
     )
 
 
-def _review_api_key() -> str:
-    key = os.getenv("REVIEW_API_KEY")
-    if not key:
-        raise HTTPException(
-            status_code=500,
-            detail="Server missing REVIEW_API_KEY configuration",
-        )
-    return key
-
-
 def _webhook_secret() -> str:
     secret = os.getenv("WEBHOOK_SECRET_KEY")
     if not secret:
@@ -273,21 +263,12 @@ def verify_github_signature(payload: bytes, signature_header: str, secret: str) 
     return hmac.compare_digest(expected, signature)
 
 
-async def require_api_key(x_api_key: Optional[str] = Header(default=None, alias="X-API-Key")) -> None:
-    """Require API key for manual review endpoints."""
-    if not x_api_key:
-        raise HTTPException(status_code=401, detail="Missing X-API-Key header")
-
-    if not hmac.compare_digest(x_api_key, _review_api_key()):
-        raise HTTPException(status_code=401, detail="Invalid API key")
-
-
 def _check_review_rate_limit(identity: str) -> None:
     if not review_limiter.allow(identity):
         raise HTTPException(status_code=429, detail="Rate limit exceeded for review endpoint")
 
 
-@app.post("/review", response_model=AnalysisResult, dependencies=[Depends(require_api_key)])
+@app.post("/review", response_model=AnalysisResult)
 async def review_code(request: ReviewRequest, raw_request: Request):
     """Review one code snippet and return structured feedback."""
     client_id = raw_request.headers.get("X-Client-Id") or raw_request.headers.get("X-API-Key", "unknown")
@@ -301,7 +282,7 @@ async def review_code(request: ReviewRequest, raw_request: Request):
         raise HTTPException(status_code=502, detail=f"Invalid model response: {exc}") from exc
 
 
-@app.post("/review/batch", response_model=BatchReviewResponse, dependencies=[Depends(require_api_key)])
+@app.post("/review/batch", response_model=BatchReviewResponse)
 async def review_batch(request: BatchReviewRequest, raw_request: Request):
     """Review multiple files in a single request."""
     client_id = raw_request.headers.get("X-Client-Id") or raw_request.headers.get("X-API-Key", "unknown")

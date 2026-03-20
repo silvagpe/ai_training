@@ -14,7 +14,6 @@ API FastAPI para revisao automatica de codigo com resposta estruturada, suporte 
 Minimas para funcionar:
 
 - `LLM_PROVIDER=anthropic|openai|google`
-- `REVIEW_API_KEY=<sua-chave-para-endpoints-manuais>`
 - `WEBHOOK_SECRET_KEY=<secret-do-webhook-github>`
 
 Chaves por provider:
@@ -45,7 +44,6 @@ uvicorn main:app --reload --port 8000
 ```bash
 curl -X POST http://localhost:8000/review \
 	-H "Content-Type: application/json" \
-	-H "X-API-Key: $REVIEW_API_KEY" \
 	-d '{
 		"code": "def login(user, password):\n    query = f\"SELECT * FROM users WHERE user={user}\"\n    return db.execute(query)",
 		"language": "python",
@@ -58,7 +56,6 @@ curl -X POST http://localhost:8000/review \
 ```bash
 curl -X POST http://localhost:8000/review/batch \
 	-H "Content-Type: application/json" \
-	-H "X-API-Key: $REVIEW_API_KEY" \
 	-d '{
 		"focus": ["security"],
 		"files": [
@@ -97,3 +94,13 @@ Documentacao oficial GitHub:
 ```bash
 curl http://localhost:8000/health
 ```
+
+
+
+
+https://codereview-production-b0b5.up.railway.app/
+
+
+curl -X POST https://codereview-production-b0b5.up.railway.app/review \
+  -H "Content-Type: application/json" \
+  -d '{"code":"print(1)","language":"python"}'
