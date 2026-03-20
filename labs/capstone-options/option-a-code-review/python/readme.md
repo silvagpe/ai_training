@@ -1,28 +1,70 @@
 # AI Code Review Bot (Capstone Option A)
 
-API FastAPI para revisao automatica de codigo com resposta estruturada, suporte a multiplas linguagens e integracao com webhook do GitHub.
+FastAPI API for automated code review with structured responses, multi-language support, request logging, rate limiting, and GitHub webhook validation.
+
+## Features
+
+- Single-file review with structured JSON output
+- Batch review for multiple files in one request
+- Supported languages: Python, JavaScript, TypeScript, Java, Go, and Rust
+- Optional review focus areas: bug, security, performance, style, and maintainability
+- Structured issue output with severity, category, optional line number, description, and suggestion
+- Request logging with latency and `X-Request-Id`
+- In-memory rate limiting for review and webhook endpoints
+- GitHub webhook signature validation and pull request event filtering
+- Health check endpoint
 
 ## Endpoints
 
-- `POST /review` - revisao de um snippet
-- `POST /review/batch` - revisao de varios arquivos
-- `POST /webhook/github` - recepcao de eventos de Pull Request
-- `GET /health` - health check
+- `POST /review` - review a single code snippet
+- `POST /review/batch` - review multiple files in one request
+- `POST /webhook/github` - receive and validate GitHub Pull Request webhooks
+- `GET /health` - health check and provider info
 
-## Variaveis de ambiente
+## Response Format
 
-Minimas para funcionar:
+Both review endpoints return structured data in this shape:
+
+```json
+{
+	"summary": "Short review summary",
+	"issues": [
+		{
+			"severity": "critical",
+			"line": 12,
+			"category": "security",
+			"description": "Unsanitized SQL query",
+			"suggestion": "Use parameterized queries instead of string interpolation"
+		}
+	],
+	"suggestions": [
+		"Add input validation"
+	],
+	"metrics": {
+		"overall_score": 6,
+		"complexity": "medium",
+		"maintainability": "fair"
+	}
+}
+```
+
+## Environment Variables
+
+Minimum required configuration:
 
 - `LLM_PROVIDER=anthropic|openai|google`
-- `WEBHOOK_SECRET_KEY=<secret-do-webhook-github>`
 
-Chaves por provider:
+Provider-specific API keys:
 
 - Anthropic: `ANTHROPIC_API_KEY`
 - OpenAI: `OPENAI_API_KEY`
 - Google: `GOOGLE_API_KEY`
 
-Opcionais:
+Required for GitHub webhook signature validation:
+
+- `WEBHOOK_SECRET_KEY=<github-webhook-secret>`
+
+Optional configuration:
 
 - `LLM_TIMEOUT_SECONDS=30`
 - `REVIEW_RATE_LIMIT_PER_MINUTE=20`
@@ -32,14 +74,14 @@ Opcionais:
 - `MAX_BATCH_TOTAL_LENGTH=120000`
 - `ALLOWED_ORIGINS=*`
 
-## Executando localmente
+## Running Locally
 
 ```bash
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-## Exemplo: /review
+## Example: POST /review
 
 ```bash
 curl -X POST http://localhost:8000/review \
@@ -51,7 +93,7 @@ curl -X POST http://localhost:8000/review \
 	}'
 ```
 
-## Exemplo: /review/batch
+## Example: POST /review/batch
 
 ```bash
 curl -X POST http://localhost:8000/review/batch \
@@ -62,7 +104,7 @@ curl -X POST http://localhost:8000/review/batch \
 			{
 				"path": "auth.py",
 				"language": "python",
-				"code": "def auth(u,p):\n    return True"
+				"code": "def auth(u, p):\n    return True"
 			},
 			{
 				"path": "index.js",
@@ -73,34 +115,66 @@ curl -X POST http://localhost:8000/review/batch \
 	}'
 ```
 
-## Webhook GitHub
+## Review Validation Rules
 
-Configure o webhook do repositorio apontando para:
+- `language` must be one of the supported languages
+- `focus` items must be in the supported focus set
+- `code` is limited by `MAX_CODE_LENGTH`
+- batch requests are limited by `MAX_BATCH_FILES` and `MAX_BATCH_TOTAL_LENGTH`
+- invalid model output returns a `502`
+- upstream LLM provider failures return a `503`
+- rate limit violations return a `429`
 
-- `POST https://<seu-dominio>/webhook/github`
+## GitHub Webhook
 
-Eventos recomendados:
+Configure the repository webhook to send requests to:
+
+- `POST https://<your-domain>/webhook/github`
+
+Recommended event:
 
 - `Pull requests`
 
-A API valida `X-Hub-Signature-256` usando HMAC SHA-256 com `WEBHOOK_SECRET_KEY`.
+Current webhook behavior:
 
-Documentacao oficial GitHub:
+- validates `X-Hub-Signature-256` using HMAC SHA-256 and `WEBHOOK_SECRET_KEY`
+- rejects duplicate deliveries using `X-GitHub-Delivery`
+- rate-limits requests per repository
+- accepts only the `pull_request` event
+- accepts only these actions: `opened`, `reopened`, `synchronize`, `ready_for_review`, and `edited`
+- validates that the payload includes a pull request number
+- logs accepted webhook deliveries
 
-- `https://docs.github.com/pt/webhooks/using-webhooks/validating-webhook-deliveries`
+Current limitation:
 
-## Health check
+- the webhook does not yet post review comments back to GitHub; it currently validates and acknowledges supported pull request events
+
+GitHub documentation:
+
+- `https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries`
+
+## Health Check
 
 ```bash
 curl http://localhost:8000/health
 ```
 
+The response includes:
 
+- service status
+- active LLM provider
+- supported languages
 
+## Public Deployment Example
 
-https://codereview-production-b0b5.up.railway.app/
+Base URL:
 
+- `https://codereview-production-b0b5.up.railway.app/`
 
+Example:
+
+```bash
 curl -X POST https://codereview-production-b0b5.up.railway.app/review \
-  -H "Content-Type: application/json" \
-  -d '{"code":"print(1)","language":"python"}'
+	-H "Content-Type: application/json" \
+	-d '{"code":"print(1)","language":"python"}'
+```
