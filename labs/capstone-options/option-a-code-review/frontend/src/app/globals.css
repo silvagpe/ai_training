@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --brand-900: #012340;
-  --brand-800: #025939;
-  --brand-700: #027333;
-  --brand-500: #03a63c;
-  --brand-400: #04d939;
-  --ink-strong: #e8fff2;
-  --ink-soft: #b3e5ca;
-  color-scheme: dark;
+  --brand-50: #f2fbf4;
+  --brand-100: #d9f5df;
+  --brand-200: #bcebc8;
+  --brand-600: #238f47;
+  --brand-700: #1f7b3d;
+  --ink-strong: #0f172a;
+  --ink-soft: #475569;
+  color-scheme: light;
 }
 
 * {
@@ -27,9 +27,9 @@ body {
   font-family: var(--font-sans), "Segoe UI", sans-serif;
   color: var(--ink-strong);
   background:
-    radial-gradient(circle at 10% 0%, rgba(4, 217, 57, 0.2), transparent 35%),
-    radial-gradient(circle at 90% 20%, rgba(2, 115, 51, 0.5), transparent 45%),
-    linear-gradient(160deg, var(--brand-900) 10%, #01192f 50%, var(--brand-800) 100%);
+    radial-gradient(circle at 10% 0%, rgba(188, 235, 200, 0.55), transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(35, 143, 71, 0.14), transparent 45%),
+    linear-gradient(165deg, #ffffff 20%, #f8fff9 70%, #eefcf1 100%);
 }
 
 textarea,
